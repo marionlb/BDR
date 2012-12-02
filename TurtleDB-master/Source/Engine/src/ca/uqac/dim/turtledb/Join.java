@@ -133,5 +133,26 @@ public class Join extends BinaryRelation
     }
     
   }
-
+///////////////////temporaire//////////////////////
+public String toString() {
+	String left,right,cond="";
+	if(m_left instanceof Join) {
+		left = " ( "+m_left.toString()+" ) ";
+	} else if (m_left instanceof VariableTable) {
+		left = " ( "+m_left.toString()+" ) ";
+	} else  {
+		left = " Indef ";
+	}
+	if(m_right instanceof Join) {
+		right = " ( "+m_right.toString()+" ) ";
+	} else if (m_right instanceof VariableTable) {
+		right = " ( "+m_right.toString()+" ) ";
+	} else  {
+		right = " Indef ";
+	}
+	if(m_condition!=null) {
+		cond="["+m_condition.toString()+"]";
+	}
+	return left +" J"+cond+" " +right;
+}
 }
