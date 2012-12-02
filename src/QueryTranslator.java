@@ -1,3 +1,9 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +17,7 @@ import ca.uqac.dim.turtledb.Literal;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Schema;
+import ca.uqac.dim.turtledb.Selection;
 import ca.uqac.dim.turtledb.Value;
 import ca.uqac.dim.turtledb.VariableTable;
 
@@ -18,10 +25,11 @@ public class QueryTranslator {
 	static String query;
 	static Relation r;
 	static HashMap<String, VariableTable> tables;
-	//plus vraiment necessaire
-//	static HashMap<String, Attribute> attributs;
+	// plus vraiment necessaire
+	// static HashMap<String, Attribute> attributs;
 	static ArrayList<Condition> conditions;
 	static Schema schemaProj;
+
 	/**
 	 * Retourne un arbre d'opérations de type {@link Relation} à  partir d'une
 	 * requète SQL syntaxiquement et sémantiquement correcte. Les feuilles de
@@ -85,6 +93,8 @@ public class QueryTranslator {
 	 * lesquels projeter
 	 */
 	private static void getAttributes() {
+		//TODO : Gérer le joker *
+		
 		// On ne travaille que sur le fragment de la requête compris entre
 		// SELECT et FROM
 		int i_from = query.indexOf("FROM");
@@ -92,19 +102,20 @@ public class QueryTranslator {
 		// On supprime les espaces pour plus de maniabilité
 		q1 = q1.replace(" ", "");
 
-//		// On récupère un tableau des noms des attributs sur lesquels il faudra
-//		// projeter (initialement séparés par des virgules)
-//		String[] t_attr = q1.split(",");
-//		
-//		// On crée un objet Attribute pour tous ces éléments et on les
-//		// stocke dans l'objet attributs
-//		Attribute tmp;
-//		for (String attribut : t_attr) {
-//			tmp = new Attribute(attribut);
-//			// On ajoute le nom simple dans tous les cas plutot que le nom
-//			// composé avec la table
-//			attributs.put(tmp.getName(), tmp);
-//		}
+		// // On récupère un tableau des noms des attributs sur lesquels il
+		// faudra
+		// // projeter (initialement séparés par des virgules)
+		// String[] t_attr = q1.split(",");
+		//
+		// // On crée un objet Attribute pour tous ces éléments et on les
+		// // stocke dans l'objet attributs
+		// Attribute tmp;
+		// for (String attribut : t_attr) {
+		// tmp = new Attribute(attribut);
+		// // On ajoute le nom simple dans tous les cas plutot que le nom
+		// // composé avec la table
+		// attributs.put(tmp.getName(), tmp);
+		// }
 
 		schemaProj = new Schema(q1);
 	}
@@ -114,6 +125,9 @@ public class QueryTranslator {
 	 * jointure et de selection
 	 */
 	private static void getConditions() {
+		//TODO : Gérer les paranthèses
+		//TODO : Gérer les OR
+		
 		// On ne s'interesse qu'à la partie de la requête après WHERE
 		// s'il y en a une
 		int i_where = query.indexOf("WHERE");
@@ -203,10 +217,10 @@ public class QueryTranslator {
 						// tables ?
 						boolean cond = (tab[0].equals(next.getName())
 								&& dejaJoin.contains(tab[1]) && !dejaJoin
-									.contains(tab[0]))
+								.contains(tab[0]))
 								|| (tab[1].equals(next.getName())
 										&& dejaJoin.contains(tab[0]) && !dejaJoin
-											.contains(tab[1]));
+										.contains(tab[1]));
 						if (cond) {
 							// on récupère la table à joindre
 							toJoin = tables.get(next.getName());
@@ -249,7 +263,15 @@ public class QueryTranslator {
 	 * jointure ont déjà été utilisées.)
 	 */
 	private static void selections() {
-		// TODO
+		// ////////////A TESTER//////////////
+		Iterator<Condition> it = conditions.iterator();
+		Condition c;
+		Selection s;
+		while (it.hasNext()) {
+			c = it.next();
+			s = new Selection(c, r);
+			r = s;
+		}
 	}
 
 	/**
@@ -258,14 +280,15 @@ public class QueryTranslator {
 	 * <code>attributs</code>, qui sert à la construction de la projection.
 	 */
 	private static void projections() {
-		//////////////A TESTER//////////////
-//		String s="";
-//		for (Entry<String,Attribute> entry : attributs.entrySet()) {
-//			s+=entry.getKey();
-//		}
-//		Schema schema = new Schema(s);
+		// ////////////A TESTER//////////////
+
+		// String s="";
+		// for (Entry<String,Attribute> entry : attributs.entrySet()) {
+		// s+=entry.getKey();
+		// }
+		// Schema schema = new Schema(s);
 		Projection p = new Projection(schemaProj, r);
-		r=p;
+		r = p;
 	}
 
 	private static void init(String q) {
@@ -276,31 +299,46 @@ public class QueryTranslator {
 	}
 
 	public static void main(String[] args) {
-		// String regex_attr = "([a-zA-Z]+\\.?[a-zA-Z][a-zA-Z0-9]*)";
-		// String regex_select = "SELECT\\s" + regex_attr + "\\s*(,\\s*"
-		// + regex_attr + ")*";
-		// String regex_from = "FROM\\s+([^ ,]+)(?:\\s*,\\s*([^ ,]+))*\\s+";
+		String path = "data/Queries/";
+		ArrayList<String> liste = new ArrayList<String>();
 		String req = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=3";
 		String query = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=B.chose";
-		// Pattern p = Pattern.compile(regex_select);
-		//
-		// translate(req);
-		init(query);
-		getConditions();
-		getTables();
-		getAttributes();
-		// System.out.println(conditions.size());
-		// System.out.println(((Equality)conditions.get(0)).toString());
-		jointures();
-		System.out.println(r.getClass());
-		if (r instanceof Join) {
-			Join j = (Join) r;
-			System.out.println(j);
+		
+		liste.add(req);
+		liste.add(query);
+		try {
+			liste.add(readFile(path+"q1.txt"));
+			liste.add(readFile(path+"q2.txt"));
+			liste.add(readFile(path+"q3.txt"));
+			liste.add(readFile(path+"q4.txt"));
+			liste.add(readFile(path+"q5.txt"));			
+		} catch (IOException e) {
+			System.err.println("Problème de lecture de fichier.");
 		}
-		for (Attribute att : schemaProj) {
-			System.out.println(att);
-		}
-	
+		
+		for (int i = 0; i < liste.size(); i++) {
+			try {
+				translate(liste.get(i));
+				System.out.println("Fini de traduire la "+i);
+			} catch (Exception e) {
+				System.out.println("Problème dans la traduction de la "+i);
+			}
+			
+		}		
 	}
 
+	//Pris sur le net : 
+	//http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file
+	private static String readFile(String path) throws IOException {
+		FileInputStream stream = new FileInputStream(new File(path));
+		try {
+			FileChannel fc = stream.getChannel();
+			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			/* Instead of using default, pass in a decoder. */
+			return Charset.defaultCharset().decode(bb).toString();
+		}
+		finally {
+			stream.close();
+		}
+	}
 }
