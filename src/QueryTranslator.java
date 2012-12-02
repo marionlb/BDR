@@ -1,9 +1,13 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import ca.uqac.dim.turtledb.Attribute;
 import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.Equality;
+import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.Literal;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Value;
@@ -14,7 +18,7 @@ public class QueryTranslator {
 	static Relation r;
 	static HashMap<String, VariableTable> tables;
 	static HashMap<String, Attribute> attributs;
-	static HashSet<Condition> conditions;
+	static ArrayList<Condition> conditions;
 
 	/**
 	 * Remplit l'attribut <code>tables</code> de la liste des tables à joindre.
@@ -118,12 +122,89 @@ public class QueryTranslator {
 			}
 			try {
 				Float.parseFloat(t_t_cond[i][1]);
-				l1 = new Value(t_t_cond[i][1]);
+				l2 = new Value(t_t_cond[i][1]);
 			} catch (NumberFormatException e) {
 				l2 = new Attribute(t_t_cond[i][1]);
 			}
 			// La condition peut être créée
 			conditions.add(new Equality(l1, l2));
+		}
+
+	}
+
+	/**
+	 * Crée un arbre basique de jointures de toutes les tables de <code>tables</code> 
+	 * à partir des conditions de jointures trouvées dans <code>conditions</code>
+	 */
+	static void jointures() {
+		Iterator<Entry<String, VariableTable>> it = tables.entrySet()
+				.iterator();
+		ArrayList<String> dejaJoin = new ArrayList<String>();
+
+		VariableTable first, next;
+		first = it.next().getValue();
+		dejaJoin.add(first.getName());
+		r = first;
+
+		while (it.hasNext()) {
+			next = it.next().getValue();
+			// Il faut faire une jointure avec la prochaine table
+			// on cherche donc la condition de jointure
+			Iterator<Condition> itc = conditions.iterator();
+			Condition c = null;
+			Equality e;
+			VariableTable toJoin;
+			Join newJoin = null;
+			while (itc.hasNext()) {
+				c = itc.next();
+				if (c instanceof Equality) {
+					e = (Equality) c;
+					String[] tab = e.joinTables();
+
+					// On a vérifie si la condition en cours est une condition
+					// de
+					// jointure
+					if (tab != null) {
+						// vérifier si on a pas de circularité enre r et newJoin
+
+						// La condition de jointure concerne-t'elle les bonnes
+						// tables ?
+						boolean cond = (tab[0].equals(next.getName())
+								&& dejaJoin.contains(tab[1]) && !dejaJoin
+									.contains(tab[0]))
+								|| (tab[1].equals(next.getName())
+										&& dejaJoin.contains(tab[0]) && !dejaJoin
+											.contains(tab[1]));
+						if (cond) {
+							// on récupère la table à joindre
+							toJoin = tables.get(next.getName());
+							// on l'exclue des tables à joindre plus tard
+							dejaJoin.add(toJoin.getName());
+							// on crée la nouvelle jointure à partir de sa condition
+							newJoin = new Join(c);
+							// On retire la condition de jointure de la liste
+							// pour ne pas la réutiliser plus tard
+							itc.remove();
+							// on casse la boucle : on a trouvé et traité la
+							// condition de jointure
+							break;
+						}
+					}
+				}
+			}
+			// A ce point, si la table courante n'est pas dans la liste des
+			// tables à exclure, c'est qu'elle n'a pas encore été traitée : elle
+			// n'a pas de condition de jointure. On gère ici ce cas
+			if (!dejaJoin.contains(next.getName())) {
+				// Join sans condition
+				newJoin = new Join();
+				dejaJoin.add(next.getName());
+			}
+			//Tous les cas de jointures ont été vus, on rempli maintenant le noeud de jointure
+			newJoin.setLeft(r);
+			newJoin.setRight(next);
+			//La nouvelle jointure devient la racine de l'arbre
+			r = newJoin;
 		}
 
 	}
@@ -150,7 +231,7 @@ public class QueryTranslator {
 		query = q;
 		tables = new HashMap<String, VariableTable>();
 		attributs = new HashMap<String, Attribute>();
-		conditions = new HashSet<Condition>();
+		conditions = new ArrayList<Condition>();
 	}
 
 	public static void main(String[] args) {
@@ -159,6 +240,7 @@ public class QueryTranslator {
 		// + regex_attr + ")*";
 		// String regex_from = "FROM\\s+([^ ,]+)(?:\\s*,\\s*([^ ,]+))*\\s+";
 		String req = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=3";
+		String query = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=B.chose";
 		// Pattern p = Pattern.compile(regex_select);
 		//
 		// translate(req);
@@ -166,7 +248,14 @@ public class QueryTranslator {
 		getConditions();
 		getTables();
 		getAttributes();
-		System.out.println();
+		// System.out.println(conditions.size());
+		// System.out.println(((Equality)conditions.get(0)).toString());
+		jointures();
+		System.out.println(r.getClass());
+		if (r instanceof Join) {
+			Join j = (Join) r;
+			System.out.println(j);
+		}
 	}
 
 }
