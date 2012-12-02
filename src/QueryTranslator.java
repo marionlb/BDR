@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import ca.uqac.dim.turtledb.Attribute;
@@ -14,6 +15,8 @@ import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.Equality;
 import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.Literal;
+import ca.uqac.dim.turtledb.LogicalOr;
+import ca.uqac.dim.turtledb.NAryCondition;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Schema;
@@ -93,8 +96,8 @@ public class QueryTranslator {
 	 * lesquels projeter
 	 */
 	private static void getAttributes() {
-		//TODO : Gérer le joker *
-		
+		// TODO : Gérer le joker *
+
 		// On ne travaille que sur le fragment de la requête compris entre
 		// SELECT et FROM
 		int i_from = query.indexOf("FROM");
@@ -125,9 +128,8 @@ public class QueryTranslator {
 	 * jointure et de selection
 	 */
 	private static void getConditions() {
-		//TODO : Gérer les paranthèses
-		//TODO : Gérer les OR
-		
+		// TODO : Gérer les paranthèses
+
 		// On ne s'interesse qu'à la partie de la requête après WHERE
 		// s'il y en a une
 		int i_where = query.indexOf("WHERE");
@@ -139,40 +141,55 @@ public class QueryTranslator {
 		// On supprime les espaces pour plus de maniabilité
 		q3 = q3.replace(" ", "");
 
-		// tableau des conditions
-		String[] t_cond = q3.split("AND");
-		// tableau à double entrée des conditions séparés selon leurs opérandes
-		String[][] t_t_cond = new String[t_cond.length][2];
+		// tableau des conditions globales et tableaux des sous-conditions et
+		// des opérandes
+		String[] t_cond = q3.split("AND"), tor, teg;
 
 		/*
 		 * On itère sur la liste des conditions (On créera un ensemble de
 		 * conditions plutôt qu'une seule condition NAire)
 		 */
-		for (int i = 0; i < t_t_cond.length; i++) {
-			// on n'a affaire qu'à des égalités
-			t_t_cond[i] = t_cond[i].split("=", 2);
+		for (int i = 0; i < t_cond.length; i++) {
+			// cas OR
+			tor = t_cond[i].split("OR");
+			Condition[] tor_c = new Condition[tor.length];
 
-			/*
-			 * on vérifie si les opérandes sont des floats si oui, on en crée
-			 * une Value si non, c'est un attribut On crée ensuite les Literal
-			 * puis la Condition **** peut-être pb si on passe autre chose que
-			 * des floats/ints
-			 */
-			Literal l1 = null, l2 = null;
-			try {
-				Float.parseFloat(t_t_cond[i][0]);
-				l1 = new Value(t_t_cond[i][0]);
-			} catch (NumberFormatException e) {
-				l1 = new Attribute(t_t_cond[i][0]);
+			for (int j = 0; j < tor.length; j++) {
+				// on n'a affaire qu'à des égalités
+				teg = tor[j].split("=", 2);
+				/*
+				 * on vérifie si les opérandes sont des floats si oui, on en
+				 * crée une Value si non, c'est un attribut On crée ensuite les
+				 * Literal puis la Condition. 
+				 * Peut-être pb si on passe autre chose que des floats/ints
+				 */
+				Literal l1 = null, l2 = null;
+				try {
+					Float.parseFloat(teg[0]);
+					l1 = new Value(teg[0]);
+				} catch (NumberFormatException e) {
+					l1 = new Attribute(teg[0]);
+				}
+				try {
+					Float.parseFloat(teg[1]);
+					l2 = new Value(teg[1]);
+				} catch (NumberFormatException e) {
+					l2 = new Attribute(teg[1]);
+				}
+				tor_c[j] = new Equality(l1, l2);
 			}
-			try {
-				Float.parseFloat(t_t_cond[i][1]);
-				l2 = new Value(t_t_cond[i][1]);
-			} catch (NumberFormatException e) {
-				l2 = new Attribute(t_t_cond[i][1]);
+			
+			//Cas où il n'y a pas de OU : une seule condition
+			if (tor.length == 1)
+				conditions.add(tor_c[0]);
+			else {
+				//Cas du OU : on utilise LogicalOR
+				NAryCondition naire = new LogicalOr();
+				for (Condition condition : tor_c) {
+					naire.addCondition(condition);
+				}
+				conditions.add(naire);
 			}
-			// La condition peut être créée
-			conditions.add(new Equality(l1, l2));
 		}
 
 	}
@@ -183,6 +200,14 @@ public class QueryTranslator {
 	 * <code>conditions</code>
 	 */
 	private static void jointures() {
+		// TODO Gérer le cas où les conditions de jointure ne sont pas dans le
+		// bon ordre
+		/*
+		 * ie quand on veut joindre A-B puis (A-B)-C mais que les conditions de
+		 * jointure existent entre A-C et B-C (ici, on créera un produit
+		 * cartesien de A-B au lieu de créer (B-C)-A
+		 */
+
 		Iterator<Entry<String, VariableTable>> it = tables.entrySet()
 				.iterator();
 		ArrayList<String> dejaJoin = new ArrayList<String>();
@@ -208,19 +233,17 @@ public class QueryTranslator {
 					String[] tab = e.joinTables();
 
 					// On a vérifie si la condition en cours est une condition
-					// de
-					// jointure
+					// de jointure
 					if (tab != null) {
-						// vérifier si on a pas de circularité enre r et newJoin
-
+						
 						// La condition de jointure concerne-t'elle les bonnes
 						// tables ?
 						boolean cond = (tab[0].equals(next.getName())
 								&& dejaJoin.contains(tab[1]) && !dejaJoin
-								.contains(tab[0]))
+									.contains(tab[0]))
 								|| (tab[1].equals(next.getName())
 										&& dejaJoin.contains(tab[0]) && !dejaJoin
-										.contains(tab[1]));
+											.contains(tab[1]));
 						if (cond) {
 							// on récupère la table à joindre
 							toJoin = tables.get(next.getName());
@@ -263,7 +286,7 @@ public class QueryTranslator {
 	 * jointure ont déjà été utilisées.)
 	 */
 	private static void selections() {
-		// ////////////A TESTER//////////////
+		//TODO Tester
 		Iterator<Condition> it = conditions.iterator();
 		Condition c;
 		Selection s;
@@ -280,7 +303,7 @@ public class QueryTranslator {
 	 * <code>attributs</code>, qui sert à la construction de la projection.
 	 */
 	private static void projections() {
-		// ////////////A TESTER//////////////
+		//TODO Tester
 
 		// String s="";
 		// for (Entry<String,Attribute> entry : attributs.entrySet()) {
@@ -294,50 +317,70 @@ public class QueryTranslator {
 	private static void init(String q) {
 		r = null;
 		query = q;
-		tables = new HashMap<String, VariableTable>();
+		tables = new LinkedHashMap<String, VariableTable>();
 		conditions = new ArrayList<Condition>();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		String path = "data/Queries/";
 		ArrayList<String> liste = new ArrayList<String>();
 		String req = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=3";
 		String query = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=B.chose";
-		
+
 		liste.add(req);
 		liste.add(query);
 		try {
-			liste.add(readFile(path+"q1.txt"));
-			liste.add(readFile(path+"q2.txt"));
-			liste.add(readFile(path+"q3.txt"));
-			liste.add(readFile(path+"q4.txt"));
-			liste.add(readFile(path+"q5.txt"));			
+			liste.add(readFile(path + "q1.txt"));
+			liste.add(readFile(path + "q2.txt"));
+			liste.add(readFile(path + "q3.txt"));
+			liste.add(readFile(path + "q4.txt"));
+			liste.add(readFile(path + "q5.txt"));
 		} catch (IOException e) {
 			System.err.println("Problème de lecture de fichier.");
 		}
-		
+
 		for (int i = 0; i < liste.size(); i++) {
-			try {
-				translate(liste.get(i));
-				System.out.println("Fini de traduire la "+i);
-			} catch (Exception e) {
-				System.out.println("Problème dans la traduction de la "+i);
-			}
-			
-		}		
+			// try {
+			// translate(liste.get(i));
+			init(liste.get(i));
+
+			// parsage de la requête
+			getTables();
+			getAttributes();
+			getConditions();
+
+			// Construction de l'arbre
+			jointures();
+			// selections();
+			// projections();
+
+			if (r instanceof Join)
+				System.out.println(i + " : " + (Join) r);
+			else if (r instanceof VariableTable)
+				System.out.println(i + " : " + (VariableTable) r);
+			else
+				System.err.println(i + " : " + r.getClass());
+			// System.out.println("Fini de traduire la "+i);
+			// } catch (Exception e) {
+			// System.out.println("Problème dans la traduction de la "+i);
+			// e.printStackTrace();
+			// }
+
+		}
 	}
 
-	//Pris sur le net : 
-	//http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file
+	// Pris sur le net :
+	// http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file
 	private static String readFile(String path) throws IOException {
 		FileInputStream stream = new FileInputStream(new File(path));
 		try {
 			FileChannel fc = stream.getChannel();
-			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0,
+					fc.size());
 			/* Instead of using default, pass in a decoder. */
-			return Charset.defaultCharset().decode(bb).toString();
-		}
-		finally {
+			return Charset.defaultCharset().decode(bb).toString()
+					.replace("\n", "");
+		} finally {
 			stream.close();
 		}
 	}

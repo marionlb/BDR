@@ -1,5 +1,5 @@
 SELECT EmployeeID, FirstName, LastName, HireDate, City 
-FROM Employees, Location, Department
+FROM Employees, Department, Location
 WHERE City = 'London'
 AND Employees.department = Department.name
 AND Location.country = Department.country
