@@ -1,0 +1,6 @@
+SELECT EmployeeID, FirstName, Age
+FROM Employees, Location
+WHERE Salary = 50000
+OR Age = 60
+AND Employees.City = Location.City
+AND City = 'Reykjavik'

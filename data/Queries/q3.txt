@@ -1,0 +1,2 @@
+SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees
+WHERE City = 'London'

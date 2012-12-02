@@ -1,0 +1,1 @@
+SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees
