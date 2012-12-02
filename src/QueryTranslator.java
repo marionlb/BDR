@@ -24,7 +24,7 @@ import ca.uqac.dim.turtledb.VariableTable;
 public class QueryTranslator {
 	static String query;
 	static Relation r;
-	static HashMap<String, VariableTable> table;
+	static HashMap<String, VariableTable> tables;
 	// plus vraiment necessaire
 	// static HashMap<String, Attribute> attributs;
 	static ArrayList<Condition> conditions;
