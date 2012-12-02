@@ -19,47 +19,88 @@ package ca.uqac.dim.turtledb;
 
 public class Equality extends Condition
 {
-  protected Literal m_left;
-  protected Literal m_right;
-  
-  public Equality(Literal l, Literal r)
-  {
-    m_left = l;
-    m_right = r;
-  }
+	protected Literal m_left;
+	protected Literal m_right;
 
-  @Override
-  public boolean evaluate(Tuple t)
-  {
-    // attribute = attribute
-    if (m_left instanceof Attribute && m_right instanceof Attribute)
-    {
-      Value left = t.get(m_left);
-      Value right = t.get(m_right);
-      return left.equals(right);
-    }
-    // attribute = value
-    if (m_left instanceof Attribute && m_right instanceof Value)
-    {
-      Value left = t.get(m_left);
-      return left.equals(m_right);
-    }
-    // value = attribute
-    if (m_left instanceof Value && m_right instanceof Attribute)
-    {
-      return t.get(m_right).equals(m_left);
-    }
-    // value = value
-    if (m_left instanceof Value && m_right instanceof Value)
-    {
-      return m_left.equals(m_right);
-    }
-    return false;
-  }
-  
-  public void accept(ConditionVisitor v)
-  {
-    v.visit(this);
-  }
+	public Equality(Literal l, Literal r)
+	{
+		m_left = l;
+		m_right = r;
+	}
 
+	@Override
+	public boolean evaluate(Tuple t)
+	{
+		// attribute = attribute
+		if (m_left instanceof Attribute && m_right instanceof Attribute)
+		{
+			Value left = t.get(m_left);
+			Value right = t.get(m_right);
+			return left.equals(right);
+		}
+		// attribute = value
+		if (m_left instanceof Attribute && m_right instanceof Value)
+		{
+			Value left = t.get(m_left);
+			return left.equals(m_right);
+		}
+		// value = attribute
+		if (m_left instanceof Value && m_right instanceof Attribute)
+		{
+			return t.get(m_right).equals(m_left);
+		}
+		// value = value
+		if (m_left instanceof Value && m_right instanceof Value)
+		{
+			return m_left.equals(m_right);
+		}
+		return false;
+	}
+
+	public void accept(ConditionVisitor v)
+	{
+		v.visit(this);
+	}
+
+	//////////////////////////////////////////////////////
+	//////////////////////////Rajout//////////////////////
+	//////////////////////////////////////////////////////
+
+	//  public boolean isJoinCondition() {
+	//	  if(m_left instanceof Value || m_right instanceof Value)
+	//		  return false;
+	//	  Attribute l=(Attribute)m_left,r=(Attribute)m_right;
+	//	  if(l.getTableName()=="" || r.getTableName()=="")
+	//		  return false;
+	//	  if(l.getTableName()!=r.getTableName())
+	//		  return true;
+	//	  return false; 
+	//  }
+
+	/**
+	 * Vérifie si la condition d'égalité est une condition de jointure
+	 * @return Un tableau des deux noms de tables si oui, null sinon
+	 */
+	public String[] joinTables() {
+		if(m_left instanceof Value || m_right instanceof Value)
+			return null;
+		Attribute l=(Attribute)m_left,r=(Attribute)m_right;
+		if(l.getTableName()=="" || r.getTableName()=="")
+			return null;
+		if(l.getTableName()!=r.getTableName()) {
+			return new String[]{l.getTableName(),r.getTableName()};
+		}
+		return null; 
+	}
+
+	public String toString() {
+		return m_left +" == " +m_right;
+	}
+
+
+	//////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////
 }
+
+
