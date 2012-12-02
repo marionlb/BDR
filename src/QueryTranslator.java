@@ -24,27 +24,27 @@ import ca.uqac.dim.turtledb.VariableTable;
 public class QueryTranslator {
 	static String query;
 	static Relation r;
-	static HashMap<String, VariableTable> tables;
+	static HashMap<String, VariableTable> table;
 	// plus vraiment necessaire
 	// static HashMap<String, Attribute> attributs;
 	static ArrayList<Condition> conditions;
 	static Schema schemaProj;
 
 	/**
-	 * Retourne un arbre d'opérations de type {@link Relation} à  partir d'une
-	 * requète SQL syntaxiquement et sémantiquement correcte. Les feuilles de
+	 *  Retourne un arbre d'opï¿½rations de type {@link Relation} ï¿½ partir d'une
+	 * requï¿½te SQL syntaxiquement et sï¿½mantiquement correcte. Les feuilles de
 	 * cet arbre (qui correspondent aux fragments) sont des
 	 * {@link VariableTable}
 	 * 
 	 * @param q
-	 *            La requète SQL
-	 * @return Un objet {@link Relation} si la requête est correcte, null sinon
+	 *            La requï¿½te SQL
+	 * @return Un objet {@link Relation} si la requï¿½te est correcte, null sinon
 	 */
 	public static Relation translate(String q) {
 		// Initialisation des variables locales
 		init(q);
 
-		// parsage de la requête
+		// parsage de la requï¿½te
 		getTables();
 		getAttributes();
 		getConditions();
@@ -58,10 +58,10 @@ public class QueryTranslator {
 	}
 
 	/**
-	 * Remplit l'attribut <code>tables</code> de la liste des tables à joindre.
+	 * Remplit l'attribut <code>tables</code> de la liste des tables ï¿½ joindre.
 	 */
 	private static void getTables() {
-		// On ne travaille que sur le fragment de la requête compris entre
+		// On ne travaille que sur le fragment de la requï¿½te compris entre
 		// FROM et WHERE
 		int i_from = query.indexOf("FROM");
 		int i_where = query.indexOf("WHERE");
@@ -72,15 +72,15 @@ public class QueryTranslator {
 		} else {
 			q2 = query.substring(i_from + "FROM ".length(), query.length());
 		}
-		// On supprime les espaces pour plus de maniabilité
+		// On supprime les espaces pour plus de maniabilitï¿½
 		q2 = q2.replace(" ", "");
 
-		// On récupère un tableau des noms de tables (initialement séparés par
+		// On rï¿½cupï¿½re un tableau des noms de tables (initialement sï¿½parï¿½s par
 		// des virgules)
 		String[] t_tables = q2.split(",");
 
-		// On crée un objet VariableTable pour toutes ces tables et on les
-		// stocke dans l'attribut tables (indexés par leur nom de table)
+		// On crï¿½e un objet VariableTable pour toutes ces tables et on les
+		// stocke dans l'attribut tables (indexï¿½s par leur nom de table)
 		VariableTable tmp;
 		for (String table : t_tables) {
 			tmp = new VariableTable(table);
@@ -93,27 +93,27 @@ public class QueryTranslator {
 	 * lesquels projeter
 	 */
 	private static void getAttributes() {
-		//TODO : Gérer le joker *
+		//TODO : Gï¿½rer le joker *
 		
-		// On ne travaille que sur le fragment de la requête compris entre
+		// On ne travaille que sur le fragment de la requï¿½te compris entre
 		// SELECT et FROM
 		int i_from = query.indexOf("FROM");
 		String q1 = query.substring(0 + "SELECT ".length(), i_from);
-		// On supprime les espaces pour plus de maniabilité
+		// On supprime les espaces pour plus de maniabilitï¿½
 		q1 = q1.replace(" ", "");
 
-		// // On récupère un tableau des noms des attributs sur lesquels il
+		// // On rï¿½cupï¿½re un tableau des noms des attributs sur lesquels il
 		// faudra
-		// // projeter (initialement séparés par des virgules)
+		// // projeter (initialement sï¿½parï¿½s par des virgules)
 		// String[] t_attr = q1.split(",");
 		//
-		// // On crée un objet Attribute pour tous ces éléments et on les
+		// // On crï¿½e un objet Attribute pour tous ces ï¿½lï¿½ments et on les
 		// // stocke dans l'objet attributs
 		// Attribute tmp;
 		// for (String attribut : t_attr) {
 		// tmp = new Attribute(attribut);
 		// // On ajoute le nom simple dans tous les cas plutot que le nom
-		// // composé avec la table
+		// // composï¿½ avec la table
 		// attributs.put(tmp.getName(), tmp);
 		// }
 
@@ -125,10 +125,10 @@ public class QueryTranslator {
 	 * jointure et de selection
 	 */
 	private static void getConditions() {
-		//TODO : Gérer les paranthèses
-		//TODO : Gérer les OR
+		//TODO : Gï¿½rer les paranthï¿½ses
+		//TODO : Gï¿½rer les OR
 		
-		// On ne s'interesse qu'à la partie de la requête après WHERE
+		// On ne s'interesse qu'ï¿½ la partie de la requï¿½te aprï¿½s WHERE
 		// s'il y en a une
 		int i_where = query.indexOf("WHERE");
 
@@ -136,26 +136,26 @@ public class QueryTranslator {
 			return;
 
 		String q3 = query.substring(i_where + "WHERE".length(), query.length());
-		// On supprime les espaces pour plus de maniabilité
+		// On supprime les espaces pour plus de maniabilitï¿½
 		q3 = q3.replace(" ", "");
 
 		// tableau des conditions
 		String[] t_cond = q3.split("AND");
-		// tableau à double entrée des conditions séparés selon leurs opérandes
+		// tableau ï¿½ double entrï¿½e des conditions sï¿½parï¿½s selon leurs opï¿½randes
 		String[][] t_t_cond = new String[t_cond.length][2];
 
 		/*
-		 * On itère sur la liste des conditions (On créera un ensemble de
-		 * conditions plutôt qu'une seule condition NAire)
+		 * On itï¿½re sur la liste des conditions (On crï¿½era un ensemble de
+		 * conditions plutï¿½t qu'une seule condition NAire)
 		 */
 		for (int i = 0; i < t_t_cond.length; i++) {
-			// on n'a affaire qu'à des égalités
+			// on n'a affaire qu'ï¿½ des ï¿½galitï¿½s
 			t_t_cond[i] = t_cond[i].split("=", 2);
 
 			/*
-			 * on vérifie si les opérandes sont des floats si oui, on en crée
-			 * une Value si non, c'est un attribut On crée ensuite les Literal
-			 * puis la Condition **** peut-être pb si on passe autre chose que
+			 * on vï¿½rifie si les opï¿½randes sont des floats si oui, on en crï¿½e
+			 * une Value si non, c'est un attribut On crï¿½e ensuite les Literal
+			 * puis la Condition **** peut-ï¿½tre pb si on passe autre chose que
 			 * des floats/ints
 			 */
 			Literal l1 = null, l2 = null;
@@ -171,15 +171,15 @@ public class QueryTranslator {
 			} catch (NumberFormatException e) {
 				l2 = new Attribute(t_t_cond[i][1]);
 			}
-			// La condition peut être créée
+			// La condition peut ï¿½tre crï¿½ï¿½e
 			conditions.add(new Equality(l1, l2));
 		}
 
 	}
 
 	/**
-	 * Crée un arbre basique de jointures de toutes les tables de
-	 * <code>tables</code> à partir des conditions de jointures trouvées dans
+	 * Crï¿½e un arbre basique de jointures de toutes les tables de
+	 * <code>tables</code> ï¿½ partir des conditions de jointures trouvï¿½es dans
 	 * <code>conditions</code>
 	 */
 	private static void jointures() {
@@ -207,11 +207,11 @@ public class QueryTranslator {
 					e = (Equality) c;
 					String[] tab = e.joinTables();
 
-					// On a vérifie si la condition en cours est une condition
+					// On a vï¿½rifie si la condition en cours est une condition
 					// de
 					// jointure
 					if (tab != null) {
-						// vérifier si on a pas de circularité enre r et newJoin
+						// vï¿½rifier si on a pas de circularitï¿½ enre r et newJoin
 
 						// La condition de jointure concerne-t'elle les bonnes
 						// tables ?
@@ -222,17 +222,17 @@ public class QueryTranslator {
 										&& dejaJoin.contains(tab[0]) && !dejaJoin
 										.contains(tab[1]));
 						if (cond) {
-							// on récupère la table à joindre
+							// on rï¿½cupï¿½re la table ï¿½ joindre
 							toJoin = tables.get(next.getName());
-							// on l'exclue des tables à joindre plus tard
+							// on l'exclue des tables ï¿½ joindre plus tard
 							dejaJoin.add(toJoin.getName());
-							// on crée la nouvelle jointure à partir de sa
+							// on crï¿½e la nouvelle jointure ï¿½ partir de sa
 							// condition
 							newJoin = new Join(c);
 							// On retire la condition de jointure de la liste
-							// pour ne pas la réutiliser plus tard
+							// pour ne pas la rï¿½utiliser plus tard
 							itc.remove();
-							// on casse la boucle : on a trouvé et traité la
+							// on casse la boucle : on a trouvï¿½ et traitï¿½ la
 							// condition de jointure
 							break;
 						}
@@ -240,14 +240,14 @@ public class QueryTranslator {
 				}
 			}
 			// A ce point, si la table courante n'est pas dans la liste des
-			// tables à exclure, c'est qu'elle n'a pas encore été traitée : elle
-			// n'a pas de condition de jointure. On gère ici ce cas
+			// tables ï¿½ exclure, c'est qu'elle n'a pas encore ï¿½tï¿½ traitï¿½e : elle
+			// n'a pas de condition de jointure. On gï¿½re ici ce cas
 			if (!dejaJoin.contains(next.getName())) {
 				// Join sans condition
 				newJoin = new Join();
 				dejaJoin.add(next.getName());
 			}
-			// Tous les cas de jointures ont été vus, on rempli maintenant le
+			// Tous les cas de jointures ont ï¿½tï¿½ vus, on rempli maintenant le
 			// noeud de jointure
 			newJoin.setLeft(r);
 			newJoin.setRight(next);
@@ -258,9 +258,9 @@ public class QueryTranslator {
 	}
 
 	/**
-	 * Rajoute les selections à l'arbre de jointures. Utilise les conditions
+	 * Rajoute les selections ï¿½ l'arbre de jointures. Utilise les conditions
 	 * restantes de l'attribut <code>conditions</code> (les conditions de
-	 * jointure ont déjà été utilisées.)
+	 * jointure ont dï¿½jï¿½ ï¿½tï¿½ utilisï¿½es.)
 	 */
 	private static void selections() {
 		// ////////////A TESTER//////////////
@@ -275,9 +275,9 @@ public class QueryTranslator {
 	}
 
 	/**
-	 * Rajoute l'opération de projection à l'arbre précedemment construit.
-	 * Construit un schéma à partir des attributs dans la {@link HashMap}
-	 * <code>attributs</code>, qui sert à la construction de la projection.
+	 * Rajoute l'opï¿½ration de projection ï¿½ l'arbre prï¿½cedemment construit.
+	 * Construit un schï¿½ma ï¿½ partir des attributs dans la {@link HashMap}
+	 * <code>attributs</code>, qui sert ï¿½ la construction de la projection.
 	 */
 	private static void projections() {
 		// ////////////A TESTER//////////////
@@ -313,7 +313,7 @@ public class QueryTranslator {
 			liste.add(readFile(path+"q4.txt"));
 			liste.add(readFile(path+"q5.txt"));			
 		} catch (IOException e) {
-			System.err.println("Problème de lecture de fichier.");
+			System.err.println("Problï¿½me de lecture de fichier.");
 		}
 		
 		for (int i = 0; i < liste.size(); i++) {
@@ -321,7 +321,7 @@ public class QueryTranslator {
 				translate(liste.get(i));
 				System.out.println("Fini de traduire la "+i);
 			} catch (Exception e) {
-				System.out.println("Problème dans la traduction de la "+i);
+				System.out.println("Problï¿½me dans la traduction de la "+i);
 			}
 			
 		}		
