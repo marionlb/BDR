@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
@@ -9,7 +8,9 @@ import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.Equality;
 import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.Literal;
+import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.Relation;
+import ca.uqac.dim.turtledb.Schema;
 import ca.uqac.dim.turtledb.Value;
 import ca.uqac.dim.turtledb.VariableTable;
 
@@ -17,13 +18,41 @@ public class QueryTranslator {
 	static String query;
 	static Relation r;
 	static HashMap<String, VariableTable> tables;
-	static HashMap<String, Attribute> attributs;
+	//plus vraiment necessaire
+//	static HashMap<String, Attribute> attributs;
 	static ArrayList<Condition> conditions;
+	static Schema schemaProj;
+	/**
+	 * Retourne un arbre d'opérations de type {@link Relation} à  partir d'une
+	 * requète SQL syntaxiquement et sémantiquement correcte. Les feuilles de
+	 * cet arbre (qui correspondent aux fragments) sont des
+	 * {@link VariableTable}
+	 * 
+	 * @param q
+	 *            La requète SQL
+	 * @return Un objet {@link Relation} si la requête est correcte, null sinon
+	 */
+	public static Relation translate(String q) {
+		// Initialisation des variables locales
+		init(q);
+
+		// parsage de la requête
+		getTables();
+		getAttributes();
+		getConditions();
+
+		// Construction de l'arbre
+		jointures();
+		selections();
+		projections();
+
+		return r;
+	}
 
 	/**
 	 * Remplit l'attribut <code>tables</code> de la liste des tables à joindre.
 	 */
-	static void getTables() {
+	private static void getTables() {
 		// On ne travaille que sur le fragment de la requête compris entre
 		// FROM et WHERE
 		int i_from = query.indexOf("FROM");
@@ -55,7 +84,7 @@ public class QueryTranslator {
 	 * Remplit l'attribut <code>attributs</code> de la liste des attributs sur
 	 * lesquels projeter
 	 */
-	static void getAttributes() {
+	private static void getAttributes() {
 		// On ne travaille que sur le fragment de la requête compris entre
 		// SELECT et FROM
 		int i_from = query.indexOf("FROM");
@@ -63,26 +92,28 @@ public class QueryTranslator {
 		// On supprime les espaces pour plus de maniabilité
 		q1 = q1.replace(" ", "");
 
-		// On récupère un tableau des noms des attributs sur lesquels il faudra
-		// projeter (initialement séparés par des virgules)
-		String[] t_attr = q1.split(",");
+//		// On récupère un tableau des noms des attributs sur lesquels il faudra
+//		// projeter (initialement séparés par des virgules)
+//		String[] t_attr = q1.split(",");
+//		
+//		// On crée un objet Attribute pour tous ces éléments et on les
+//		// stocke dans l'objet attributs
+//		Attribute tmp;
+//		for (String attribut : t_attr) {
+//			tmp = new Attribute(attribut);
+//			// On ajoute le nom simple dans tous les cas plutot que le nom
+//			// composé avec la table
+//			attributs.put(tmp.getName(), tmp);
+//		}
 
-		// On crée un objet Attribute pour tous ces éléments et on les
-		// stocke dans l'objet attributs
-		Attribute tmp;
-		for (String attribut : t_attr) {
-			tmp = new Attribute(attribut);
-			// On ajoute le nom simple dans tous les cas plutot que le nom
-			// composé avec la table
-			attributs.put(tmp.getName(), tmp);
-		}
+		schemaProj = new Schema(q1);
 	}
 
 	/**
 	 * Remplit l'attribut <code>conditions</code> de la liste des conditions de
 	 * jointure et de selection
 	 */
-	static void getConditions() {
+	private static void getConditions() {
 		// On ne s'interesse qu'à la partie de la requête après WHERE
 		// s'il y en a une
 		int i_where = query.indexOf("WHERE");
@@ -133,10 +164,11 @@ public class QueryTranslator {
 	}
 
 	/**
-	 * Crée un arbre basique de jointures de toutes les tables de <code>tables</code> 
-	 * à partir des conditions de jointures trouvées dans <code>conditions</code>
+	 * Crée un arbre basique de jointures de toutes les tables de
+	 * <code>tables</code> à partir des conditions de jointures trouvées dans
+	 * <code>conditions</code>
 	 */
-	static void jointures() {
+	private static void jointures() {
 		Iterator<Entry<String, VariableTable>> it = tables.entrySet()
 				.iterator();
 		ArrayList<String> dejaJoin = new ArrayList<String>();
@@ -180,7 +212,8 @@ public class QueryTranslator {
 							toJoin = tables.get(next.getName());
 							// on l'exclue des tables à joindre plus tard
 							dejaJoin.add(toJoin.getName());
-							// on crée la nouvelle jointure à partir de sa condition
+							// on crée la nouvelle jointure à partir de sa
+							// condition
 							newJoin = new Join(c);
 							// On retire la condition de jointure de la liste
 							// pour ne pas la réutiliser plus tard
@@ -200,37 +233,45 @@ public class QueryTranslator {
 				newJoin = new Join();
 				dejaJoin.add(next.getName());
 			}
-			//Tous les cas de jointures ont été vus, on rempli maintenant le noeud de jointure
+			// Tous les cas de jointures ont été vus, on rempli maintenant le
+			// noeud de jointure
 			newJoin.setLeft(r);
 			newJoin.setRight(next);
-			//La nouvelle jointure devient la racine de l'arbre
+			// La nouvelle jointure devient la racine de l'arbre
 			r = newJoin;
 		}
 
 	}
 
 	/**
-	 * Retourne un arbre d'opérations de type {@link Relation} à  partir d'une
-	 * requète SQL syntaxiquement et sémantiquement correcte. Les feuilles de
-	 * cet arbre (qui correspondent aux fragments) sont des
-	 * {@link VariableTable}
-	 * 
-	 * @param q
-	 *            La requète SQL
-	 * @return Un objet {@link Relation} si la requête est correcte, null sinon
+	 * Rajoute les selections à l'arbre de jointures. Utilise les conditions
+	 * restantes de l'attribut <code>conditions</code> (les conditions de
+	 * jointure ont déjà été utilisées.)
 	 */
-	public static Relation translate(String q) {
-		init(q);
-
+	private static void selections() {
 		// TODO
+	}
 
-		return null;
+	/**
+	 * Rajoute l'opération de projection à l'arbre précedemment construit.
+	 * Construit un schéma à partir des attributs dans la {@link HashMap}
+	 * <code>attributs</code>, qui sert à la construction de la projection.
+	 */
+	private static void projections() {
+		//////////////A TESTER//////////////
+//		String s="";
+//		for (Entry<String,Attribute> entry : attributs.entrySet()) {
+//			s+=entry.getKey();
+//		}
+//		Schema schema = new Schema(s);
+		Projection p = new Projection(schemaProj, r);
+		r=p;
 	}
 
 	private static void init(String q) {
+		r = null;
 		query = q;
 		tables = new HashMap<String, VariableTable>();
-		attributs = new HashMap<String, Attribute>();
 		conditions = new ArrayList<Condition>();
 	}
 
@@ -244,7 +285,7 @@ public class QueryTranslator {
 		// Pattern p = Pattern.compile(regex_select);
 		//
 		// translate(req);
-		init(req);
+		init(query);
 		getConditions();
 		getTables();
 		getAttributes();
@@ -256,6 +297,10 @@ public class QueryTranslator {
 			Join j = (Join) r;
 			System.out.println(j);
 		}
+		for (Attribute att : schemaProj) {
+			System.out.println(att);
+		}
+	
 	}
 
 }
