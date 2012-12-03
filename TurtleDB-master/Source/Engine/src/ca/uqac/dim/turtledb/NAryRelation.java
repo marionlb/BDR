@@ -238,5 +238,23 @@ public abstract class NAryRelation extends Relation
     }
     
   }
-  
+  ///////////temporaire//////////////
+  public String toString() {
+	  String res="", sep="";
+	  if(this instanceof Intersection) {
+		  sep="I";
+	  } else if (this instanceof Product) {
+		  sep="P";
+	  } else if (this instanceof Union) {
+		  sep="U";
+	  } else {
+		  sep="Z";
+	  }
+	  
+	  for (Relation relation : m_relations) {
+		res+=relation.toString()+" "+sep+" ";
+	  }
+	  res = res.substring(0, res.length()-3);
+	  return res;
+  }
 }

@@ -351,15 +351,16 @@ public class QueryTranslator {
 
 			// Construction de l'arbre
 			jointures();
-			// selections();
-			// projections();
+			 selections();
+			 projections();
 
-			if (r instanceof Join)
-				System.out.println(i + " : " + (Join) r);
-			else if (r instanceof VariableTable)
-				System.out.println(i + " : " + (VariableTable) r);
-			else
-				System.err.println(i + " : " + r.getClass());
+			 System.out.println(r);
+//			if (r instanceof Join)
+//				System.out.println(i + " : " + (Join) r);
+//			else if (r instanceof VariableTable)
+//				System.out.println(i + " : " + (VariableTable) r);
+//			else
+//				System.err.println(i + " : " + r.getClass());
 			// System.out.println("Fini de traduire la "+i);
 			// } catch (Exception e) {
 			// System.out.println("Problème dans la traduction de la "+i);
