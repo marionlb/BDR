@@ -379,8 +379,8 @@ public class QueryTranslator {
 			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc
 					.size());
 			/* Instead of using default, pass in a decoder. */
-			return Charset.defaultCharset().decode(bb).toString().replace("\n",
-					"");
+			return Charset.defaultCharset().decode(bb).toString().replace(
+					System.getProperty("line.separator"), "");
 		} finally {
 			stream.close();
 		}

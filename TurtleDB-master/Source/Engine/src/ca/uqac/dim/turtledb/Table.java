@@ -102,7 +102,7 @@ public class Table extends Relation
    * Sets the table's schema
    * @param sch The schema
    */
-  protected void setSchema(Schema sch)
+  public void setSchema(Schema sch)
   {
 	Schema s = new Schema(sch);
 	s.setTableName(m_name);
