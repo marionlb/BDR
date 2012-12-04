@@ -257,4 +257,8 @@ public abstract class NAryRelation extends Relation
 	  res = res.substring(0, res.length()-3);
 	  return res;
   }
+
+public List<Relation> getM_relations() {
+	return m_relations;
+}
 }
