@@ -34,7 +34,7 @@ public class QueryTranslator {
 	static Schema schemaProj;
 
 	/**
-	 *  Retourne un arbre d'opérations de type {@link Relation} à partir d'une
+	 * Retourne un arbre d'opérations de type {@link Relation} à partir d'une
 	 * requête SQL syntaxiquement et sémantiquement correcte. Les feuilles de
 	 * cet arbre (qui correspondent aux fragments) sont des
 	 * {@link VariableTable}
@@ -160,8 +160,8 @@ public class QueryTranslator {
 				/*
 				 * on vérifie si les opérandes sont des floats si oui, on en
 				 * crée une Value si non, c'est un attribut On crée ensuite les
-				 * Literal puis la Condition. 
-				 * Peut-être pb si on passe autre chose que des floats/ints
+				 * Literal puis la Condition. Peut-être pb si on passe autre
+				 * chose que des floats/ints
 				 */
 				Literal l1 = null, l2 = null;
 				try {
@@ -178,12 +178,12 @@ public class QueryTranslator {
 				}
 				tor_c[j] = new Equality(l1, l2);
 			}
-			
-			//Cas où il n'y a pas de OU : une seule condition
+
+			// Cas où il n'y a pas de OU : une seule condition
 			if (tor.length == 1)
 				conditions.add(tor_c[0]);
 			else {
-				//Cas du OU : on utilise LogicalOR
+				// Cas du OU : on utilise LogicalOR
 				NAryCondition naire = new LogicalOr();
 				for (Condition condition : tor_c) {
 					naire.addCondition(condition);
@@ -240,10 +240,10 @@ public class QueryTranslator {
 						// tables ?
 						boolean cond = (tab[0].equals(next.getName())
 								&& dejaJoin.contains(tab[1]) && !dejaJoin
-									.contains(tab[0]))
+								.contains(tab[0]))
 								|| (tab[1].equals(next.getName())
 										&& dejaJoin.contains(tab[0]) && !dejaJoin
-											.contains(tab[1]));
+										.contains(tab[1]));
 						if (cond) {
 							// on récupère la table à joindre
 							toJoin = tables.get(next.getName());
@@ -286,7 +286,7 @@ public class QueryTranslator {
 	 * jointure ont déjà été utilisées.)
 	 */
 	private static void selections() {
-		//TODO Tester
+		// TODO Tester
 		Iterator<Condition> it = conditions.iterator();
 		Condition c;
 		Selection s;
@@ -303,7 +303,7 @@ public class QueryTranslator {
 	 * <code>attributs</code>, qui sert à la construction de la projection.
 	 */
 	private static void projections() {
-		//TODO Tester
+		// TODO Tester
 
 		// String s="";
 		// for (Entry<String,Attribute> entry : attributs.entrySet()) {
@@ -351,16 +351,16 @@ public class QueryTranslator {
 
 			// Construction de l'arbre
 			jointures();
-			 selections();
-			 projections();
+			selections();
+			projections();
 
-			 System.out.println(r);
-//			if (r instanceof Join)
-//				System.out.println(i + " : " + (Join) r);
-//			else if (r instanceof VariableTable)
-//				System.out.println(i + " : " + (VariableTable) r);
-//			else
-//				System.err.println(i + " : " + r.getClass());
+			System.out.println(r);
+			// if (r instanceof Join)
+			// System.out.println(i + " : " + (Join) r);
+			// else if (r instanceof VariableTable)
+			// System.out.println(i + " : " + (VariableTable) r);
+			// else
+			// System.err.println(i + " : " + r.getClass());
 			// System.out.println("Fini de traduire la "+i);
 			// } catch (Exception e) {
 			// System.out.println("Problème dans la traduction de la "+i);
@@ -376,11 +376,11 @@ public class QueryTranslator {
 		FileInputStream stream = new FileInputStream(new File(path));
 		try {
 			FileChannel fc = stream.getChannel();
-			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0,
-					fc.size());
+			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc
+					.size());
 			/* Instead of using default, pass in a decoder. */
-			return Charset.defaultCharset().decode(bb).toString()
-					.replace("\n", "");
+			return Charset.defaultCharset().decode(bb).toString().replace("\n",
+					"");
 		} finally {
 			stream.close();
 		}
