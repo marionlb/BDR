@@ -139,14 +139,14 @@ public String toString() {
 	if(m_left instanceof Join) {
 		left = " ( "+m_left.toString()+" ) ";
 	} else if (m_left instanceof VariableTable) {
-		left = " ( "+m_left.toString()+" ) ";
+		left = ((VariableTable)m_left).getName();
 	} else  {
 		left = " Indef ";
 	}
 	if(m_right instanceof Join) {
 		right = " ( "+m_right.toString()+" ) ";
 	} else if (m_right instanceof VariableTable) {
-		right = " ( "+m_right.toString()+" ) ";
+		right = ((VariableTable)m_right).getName();
 	} else  {
 		right = " Indef ";
 	}
