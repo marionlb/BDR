@@ -32,9 +32,6 @@ public class QueryTranslator {
 	private static String query;
 	private static Relation r;
 	private static HashMap<String, VariableTable> tables;
-
-	// plus vraiment necessaire
-	// static HashMap<String, Attribute> attributs;
 	private static ArrayList<Condition> conditions;
 	private static Schema schemaProj;
 
@@ -305,6 +302,10 @@ public class QueryTranslator {
 		}
 	}
 
+	/**
+	 * Similaire à {@link selections()} mais transforme les sélections avec 
+	 * des conditions OR en union de selections sans OR. 
+	 */
 	private static void selectionsOR()
 	{
 		Iterator<Condition> it = conditions.iterator();
