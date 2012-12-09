@@ -17,72 +17,87 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public abstract class UnaryRelation extends Relation
+public abstract class UnaryRelation extends Relation implements Cloneable
 {
-  protected Relation m_relation;
-  
-  public void setRelation(Relation r)
-  {
-    m_relation = r;
-  }
+	protected Relation m_relation;
 
-  
-  public int tupleCount()
-  {
-    return m_relation.tupleCount();
-  }
-  
-  protected abstract class UnaryRelationStreamIterator extends RelationStreamIterator
-  {
-    protected RelationIterator m_childIterator;
-    
-    public UnaryRelationStreamIterator()
-    {
-      super();
-      m_childIterator = m_relation.streamIterator();
-    }
-    
-    @Override
-    public void reset()
-    {
-      super.reset();
-      m_childIterator.reset();
-    }
-  }
-  
-  protected abstract class UnaryRelationCacheIterator extends RelationCacheIterator
-  {
-    protected void getIntermediateResult()
-    {
-      Table tab_out = new Table(m_relation.getSchema());
-      RelationIterator it = m_relation.cacheIterator();
-      while (it.hasNext())
-      {
-        Tuple t = it.next();
-        tab_out.put(t);
-      }
-      m_intermediateResult = tab_out;
-    }
-  }
-  
-  ///////////temporaire//////////////
-  public String toString() {
-	  String res="", sep="", cond="";
-	  if(this instanceof Projection) {
-		  sep = "Proj";
-		  cond = ((Projection)this).m_schema.toString();
-	  } else if (this instanceof Selection) {
-		  sep = "Sel";
-		  cond = ((Selection)this).m_condition.toString();
-	  } else {
-		  sep = "Z";
-	  }
-	 
-	  res = sep +"[ "+ cond + " ]"+ "("+ m_relation + ")";
-	  return res;
-  }
-  
-  public Relation getRelation() {
-	  return m_relation;
-  }
+	public void setRelation(Relation r)
+	{
+		m_relation = r;
+	}
+
+
+	@Override
+	public int tupleCount()
+	{
+		return m_relation.tupleCount();
+	}
+
+	protected abstract class UnaryRelationStreamIterator extends RelationStreamIterator
+	{
+		protected RelationIterator m_childIterator;
+
+		public UnaryRelationStreamIterator()
+		{
+			super();
+			m_childIterator = m_relation.streamIterator();
+		}
+
+		@Override
+		public void reset()
+		{
+			super.reset();
+			m_childIterator.reset();
+		}
+	}
+
+	protected abstract class UnaryRelationCacheIterator extends RelationCacheIterator
+	{
+		@Override
+		protected void getIntermediateResult()
+		{
+			Table tab_out = new Table(m_relation.getSchema());
+			RelationIterator it = m_relation.cacheIterator();
+			while (it.hasNext())
+			{
+				Tuple t = it.next();
+				tab_out.put(t);
+			}
+			m_intermediateResult = tab_out;
+		}
+	}
+
+	///////////temporaire//////////////
+	@Override
+	public String toString() {
+		String res="", sep="", cond="";
+		if(this instanceof Projection) {
+			sep = "Proj";
+			cond = ((Projection)this).m_schema.toString();
+		} else if (this instanceof Selection) {
+			sep = "Sel";
+			cond = ((Selection)this).m_condition.toString();
+		} else {
+			sep = "Z";
+		}
+
+		res = sep +"[ "+ cond + " ]"+ "("+ m_relation + ")";
+		return res;
+	}
+
+	public Relation getRelation() {
+		return m_relation;
+	}
+
+	@Override
+	public Object clone() {
+		UnaryRelation r = null;
+
+		r = (UnaryRelation) super.clone();
+		if(this.m_relation != null)
+			r.m_relation = (Relation) this.m_relation.clone();
+
+		// on renvoie le clone
+		return r;
+	}
 }

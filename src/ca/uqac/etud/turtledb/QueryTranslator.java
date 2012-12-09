@@ -23,6 +23,7 @@ import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Schema;
 import ca.uqac.dim.turtledb.Selection;
+import ca.uqac.dim.turtledb.Union;
 import ca.uqac.dim.turtledb.Value;
 import ca.uqac.dim.turtledb.VariableTable;
 
@@ -298,6 +299,28 @@ public class QueryTranslator {
 		}
 	}
 
+	private static void selectionsOR() {
+		Iterator<Condition> it = conditions.iterator();
+		Condition c;
+		Selection s;
+		while (it.hasNext()) {
+			c = it.next(); 
+			//Si ce n'est pas un OR , on ajoute la sélection en haut de l'arbre
+			if(!(c instanceof LogicalOr)) {
+				s = new Selection(c, r);
+				r = s;
+			} 
+			//sinon, on ajoute une union de sélections
+			else {
+				Union union = new Union();
+				LogicalOr lor = (LogicalOr) c;
+				Condition c_simple;
+				for (Condition cond : lor.m_conditions) {
+//					union.addOperand(new Selection(cond, r.c));
+				}
+			}
+		}
+	}
 	/**
 	 * Rajoute l'op�ration de projection � l'arbre pr�cedemment construit.
 	 * Construit un sch�ma � partir des attributs dans la {@link HashMap}

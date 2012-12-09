@@ -19,85 +19,99 @@ package ca.uqac.dim.turtledb;
 
 public class Selection extends UnaryRelation
 {
-  protected Condition m_condition;
-   
-  public Selection(Condition c, Relation r)
-  {
-    super();
-    m_condition = c;
-    m_relation = r;
-  }
+	protected Condition m_condition;
 
-  @Override
-  public Schema getSchema()
-  {
-    // The schema of a selection is the same as the schema of
-    // its underlying relation
-    return m_relation.getSchema();
-  }
+	public Condition getCondition() {
+		return m_condition;
+	}
 
-  public void setCondition(Condition c)
-  {
-    assert c != null;
-    m_condition = c;
-  }
-  
-  @Override
-  public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException
-  {
-    m_relation.accept(v);
-    v.visit(this);
-  }
-  
-  protected class SelectionStreamIterator extends UnaryRelationStreamIterator
-  { 
-    public SelectionStreamIterator()
-    {
-      super();
-    }
-    
-    protected Tuple internalNext()
-    {
-      m_nextTuple = null;
-      while (m_childIterator.hasNext())
-      {
-        Tuple t = m_childIterator.next();
-        if (m_condition.evaluate(t))
-        {
-          return t;
-        }
-      }
-      return null;
-    }
-  }
-  
-  protected class SelectionCacheIterator extends RelationCacheIterator
-  {
-    @Override
-    protected void getIntermediateResult()
-    {
-      Table tab = new Table(getSchema());
-      RelationIterator i = m_relation.cacheIterator();
-      while (i.hasNext())
-      {
-        Tuple t = i.next();
-        if (m_condition.evaluate(t))
-          tab.put(t);
-      }
-      m_intermediateResult = tab;
-    }
-  }
+	public Selection(Condition c, Relation r)
+	{
+		super();
+		m_condition = c;
+		m_relation = r;
+	}
 
-  @Override
-  public RelationStreamIterator streamIterator()
-  {
-    return new SelectionStreamIterator();
-  }
+	@Override
+	public Schema getSchema()
+	{
+		// The schema of a selection is the same as the schema of
+		// its underlying relation
+		return m_relation.getSchema();
+	}
 
-  @Override
-  public RelationIterator cacheIterator()
-  {
-    return new SelectionCacheIterator();
-  }
+	public void setCondition(Condition c)
+	{
+		assert c != null;
+		m_condition = c;
+	}
+
+	@Override
+	public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException
+	{
+		m_relation.accept(v);
+		v.visit(this);
+	}
+
+	protected class SelectionStreamIterator extends UnaryRelationStreamIterator
+	{ 
+		public SelectionStreamIterator()
+		{
+			super();
+		}
+
+		@Override
+		protected Tuple internalNext()
+		{
+			m_nextTuple = null;
+			while (m_childIterator.hasNext())
+			{
+				Tuple t = m_childIterator.next();
+				if (m_condition.evaluate(t))
+				{
+					return t;
+				}
+			}
+			return null;
+		}
+	}
+
+	protected class SelectionCacheIterator extends RelationCacheIterator
+	{
+		@Override
+		protected void getIntermediateResult()
+		{
+			Table tab = new Table(getSchema());
+			RelationIterator i = m_relation.cacheIterator();
+			while (i.hasNext())
+			{
+				Tuple t = i.next();
+				if (m_condition.evaluate(t))
+					tab.put(t);
+			}
+			m_intermediateResult = tab;
+		}
+	}
+
+	@Override
+	public RelationStreamIterator streamIterator()
+	{
+		return new SelectionStreamIterator();
+	}
+
+	@Override
+	public RelationIterator cacheIterator()
+	{
+		return new SelectionCacheIterator();
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		Selection s  = (Selection) super.clone();
+		if(s.m_condition!=null)
+			s.m_condition = (Condition) this.m_condition.clone();
+		return s;
+	}
 
 }

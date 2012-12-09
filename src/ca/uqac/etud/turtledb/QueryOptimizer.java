@@ -144,7 +144,7 @@ public class QueryOptimizer {
 			r.nTuples = Math.max(((BinaryRelation) r).getLeft().nTuples, ((BinaryRelation) r).getRight().nTuples);
 	
 		} else if (r instanceof NAryRelation) {
-			for (Relation rel : ((NAryRelation) r).getM_relations()) {
+			for (Relation rel : ((NAryRelation) r).getRelations()) {
 				res += calcCost(site, rel);
 				r.nTuples = Math.max(r.nTuples, rel.nTuples);
 			}

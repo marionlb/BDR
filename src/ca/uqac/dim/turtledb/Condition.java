@@ -22,4 +22,21 @@ public abstract class Condition
   public abstract boolean evaluate(Tuple t);
   
   public abstract void accept(ConditionVisitor v);
+  
+  @Override
+public Object clone() {
+	    Condition c = null;
+	    try {
+	    	// On récupère l'instance à renvoyer par l'appel de la 
+	      	// méthode super.clone()
+	      	c = (Condition) super.clone();
+	    } catch(CloneNotSupportedException cnse) {
+	      	// Ne devrait jamais arriver car nous implémentons 
+	      	// l'interface Cloneable
+	      	cnse.printStackTrace(System.err);
+	    }
+	    	    
+	    // on renvoie le clone
+	    return c;
+	}
 }

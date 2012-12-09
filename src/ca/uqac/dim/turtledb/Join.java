@@ -21,138 +21,157 @@ import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 
 public class Join extends BinaryRelation
 {
-  protected Product m_product;
-  protected Condition m_condition;
-  
-  public Join()
-  {
-    super();
-    m_product = new Product();
-  }
-  
-  public Join(Condition c)
-  {
-    this();
-    m_condition = c;
-  }
-  
-  public void setCondition(Condition c)
-  {
-    m_condition = c;
-  }
-  
-  @Override
-  public Schema getSchema()
-  {
-    return m_product.getSchema();
-  }
-  
-  public void addOperand(Relation r)
-  {
-    m_product.addOperand(r);
-  }
-  
-  public int tupleCount()
-  {
-    return m_product.tupleCount();
-  }
-  
+	protected Product m_product;
+	protected Condition m_condition;
 
-  
-  @Override
-  public void accept(QueryVisitor v) throws VisitorException
-  {
-    super.acceptBinary(v);
-    v.visit(this);
-  }
-  
-  protected class JoinStreamIterator extends BinaryRelationStreamIterator
-  {
-    protected RelationStreamIterator m_childIterator;
-    
-    public JoinStreamIterator()
-    {
-      super();
-      m_childIterator = m_product.streamIterator();
-      reset();
-    }
-    
-    
-    /**
-     * Implementation of internalNext.
-     */
-    @Override
-    protected Tuple internalNext()
-    {
-      while (m_childIterator.hasNext())
-      {
-        Tuple t = m_childIterator.next();
-        if (m_condition.evaluate(t))
-          return t;
-      }
-      return null;
-    }
-    
-    public void reset()
-    {
-      super.reset();
-      m_childIterator.reset();
-    }
-  }
+	public Join()
+	{
+		super();
+		m_product = new Product();
+	}
 
-  @Override
-  public RelationIterator streamIterator()
-  {
-    return new JoinStreamIterator();
-  }
+	public Join(Condition c)
+	{
+		this();
+		m_condition = c;
+	}
 
-  @Override
-  public RelationIterator cacheIterator()
-  {
-    return new JoinCacheIterator();
-  }
-  
-  protected class JoinCacheIterator extends RelationCacheIterator
-  {
-    public JoinCacheIterator()
-    {
-      super();
-      m_intermediateResult = null;
-    }
-    
-    protected void getIntermediateResult()
-    {
-      m_intermediateResult = new Table(m_product.getSchema());
-      RelationIterator it = m_product.cacheIterator();
-      while (it.hasNext())
-      {
-        Tuple t = it.next();
-        if (m_condition.evaluate(t))
-          m_intermediateResult.put(t);
-      }
-    }
-    
-  }
-///////////////////temporaire//////////////////////
-public String toString() {
-	String left,right,cond="";
-	if(m_left instanceof Join) {
-		left = " ( "+m_left.toString()+" ) ";
-	} else if (m_left instanceof VariableTable) {
-		left = ((VariableTable)m_left).getName();
-	} else  {
-		left = " Indef ";
+	public void setCondition(Condition c)
+	{
+		m_condition = c;
 	}
-	if(m_right instanceof Join) {
-		right = " ( "+m_right.toString()+" ) ";
-	} else if (m_right instanceof VariableTable) {
-		right = ((VariableTable)m_right).getName();
-	} else  {
-		right = " Indef ";
+
+	@Override
+	public Schema getSchema()
+	{
+		return m_product.getSchema();
 	}
-	if(m_condition!=null) {
-		cond="["+m_condition.toString()+"]";
+
+	public void addOperand(Relation r)
+	{
+		m_product.addOperand(r);
 	}
-	return left +" J"+cond+" " +right;
-}
+
+	@Override
+	public int tupleCount()
+	{
+		return m_product.tupleCount();
+	}
+
+
+
+	@Override
+	public void accept(QueryVisitor v) throws VisitorException
+	{
+		super.acceptBinary(v);
+		v.visit(this);
+	}
+
+	protected class JoinStreamIterator extends BinaryRelationStreamIterator
+	{
+		protected RelationStreamIterator m_childIterator;
+
+		public JoinStreamIterator()
+		{
+			super();
+			m_childIterator = m_product.streamIterator();
+			reset();
+		}
+
+
+		/**
+		 * Implementation of internalNext.
+		 */
+		 @Override
+		 protected Tuple internalNext()
+		 {
+			 while (m_childIterator.hasNext())
+			 {
+				 Tuple t = m_childIterator.next();
+				 if (m_condition.evaluate(t))
+					 return t;
+			 }
+			 return null;
+		 }
+
+		 @Override
+		 public void reset()
+		 {
+			 super.reset();
+			 m_childIterator.reset();
+		 }
+	}
+
+	@Override
+	public RelationIterator streamIterator()
+	{
+		return new JoinStreamIterator();
+	}
+
+	@Override
+	public RelationIterator cacheIterator()
+	{
+		return new JoinCacheIterator();
+	}
+
+	protected class JoinCacheIterator extends RelationCacheIterator
+	{
+		public JoinCacheIterator()
+		{
+			super();
+			m_intermediateResult = null;
+		}
+
+		@Override
+		protected void getIntermediateResult()
+		{
+			m_intermediateResult = new Table(m_product.getSchema());
+			RelationIterator it = m_product.cacheIterator();
+			while (it.hasNext())
+			{
+				Tuple t = it.next();
+				if (m_condition.evaluate(t))
+					m_intermediateResult.put(t);
+			}
+		}
+
+	}
+	///////////////////temporaire//////////////////////
+	@Override
+	public String toString() {
+		String left,right,cond="";
+		if(m_left instanceof Join) {
+			left = " ( "+m_left.toString()+" ) ";
+		} else if (m_left instanceof VariableTable) {
+			left = ((VariableTable)m_left).getName();
+		} else  {
+			left = " Indef ";
+		}
+		if(m_right instanceof Join) {
+			right = " ( "+m_right.toString()+" ) ";
+		} else if (m_right instanceof VariableTable) {
+			right = ((VariableTable)m_right).getName();
+		} else  {
+			right = " Indef ";
+		}
+		if(m_condition!=null) {
+			cond="["+m_condition.toString()+"]";
+		}
+		return left +" J"+cond+" " +right;
+	}
+
+	@Override
+	public Object clone() {
+		Join r = null;
+
+		r = (Join) super.clone();
+		if(m_product!=null )
+			r.m_product = (Product) this.m_product.clone();
+		if(m_condition!=null )
+			r.m_condition = (Condition) this.m_condition.clone();
+
+		// on renvoie le clone
+		return r;
+
+	}
 }

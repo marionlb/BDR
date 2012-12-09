@@ -119,4 +119,10 @@ public class Intersection extends NAryRelation
     }
   }
 
+@Override
+public Object clone() {
+	// TODO Auto-generated method stub
+	return super.clone();
+}
+
 }

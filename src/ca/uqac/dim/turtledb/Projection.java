@@ -75,7 +75,8 @@ public class Projection extends UnaryRelation
       m_outputTuples = new LinkedList<Tuple>();
     }
     
-    protected Tuple internalNext()
+    @Override
+	protected Tuple internalNext()
     {
       Tuple t = m_childIterator.next();
       return project(t);    
@@ -84,7 +85,8 @@ public class Projection extends UnaryRelation
   
   protected class ProjectionCacheIterator extends UnaryRelationCacheIterator
   {
-    public void getIntermediateResult()
+    @Override
+	public void getIntermediateResult()
     {
       Table tab_out = new Table(getSchema());
       super.getIntermediateResult();
@@ -110,5 +112,13 @@ public class Projection extends UnaryRelation
   {
     return new ProjectionCacheIterator();
   }
+
+@Override
+public Object clone() {
+	// TODO Auto-generated method stub
+	Projection p = (Projection) super.clone();
+	p.m_schema = new Schema(this.m_schema);
+	return p;
+}
 
 }

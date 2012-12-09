@@ -65,4 +65,18 @@ public abstract class NAryCondition extends Condition
     }
     return out.toString();
   }
+
+@Override
+public Object clone() {
+	NAryCondition n = (NAryCondition) super.clone();
+	List<Condition> list = new LinkedList<Condition>();
+	
+	if (m_conditions!=null) {
+		for (Condition condition : this.m_conditions) {
+			list.add((Condition) condition.clone());
+		}
+		n.m_conditions = list;
+	}
+	return n;
+}
 }

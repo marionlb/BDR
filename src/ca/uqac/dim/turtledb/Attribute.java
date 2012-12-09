@@ -148,4 +148,10 @@ public class Attribute extends Literal
     }
     return 0;
   }
+
+@Override
+protected Object clone() throws CloneNotSupportedException {
+	// TODO Auto-generated method stub
+	return super.clone();
+}
 }
