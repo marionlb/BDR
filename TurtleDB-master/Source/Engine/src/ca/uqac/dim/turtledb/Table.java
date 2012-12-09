@@ -19,6 +19,8 @@ package ca.uqac.dim.turtledb;
 
 import java.util.*;
 
+import pack.BD;
+
 /**
  * A Table is a list of tuples. Since the leaves of a relational query
  * tree are always tables, it is the only Relation that actually
@@ -47,9 +49,10 @@ public class Table extends Relation
     super();
     m_tuples = new ArrayList<Tuple>();
     m_name = "";
+    BD.addTable(this);    
   }
   
-  /*package*/ Table(String s)
+  public Table(String s)
   {
     this();
     m_name = s;

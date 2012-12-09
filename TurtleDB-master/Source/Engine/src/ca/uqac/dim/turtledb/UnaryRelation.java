@@ -81,4 +81,8 @@ public abstract class UnaryRelation extends Relation
 	  res = sep +"[ "+ cond + " ]"+ "("+ m_relation + ")";
 	  return res;
   }
+  
+  public Relation getRelation() {
+	  return m_relation;
+  }
 }

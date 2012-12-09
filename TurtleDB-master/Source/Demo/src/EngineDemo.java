@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -------------------------------------------------------------------------*/
 
+import pack.BD;
+import pack.QueryOptimizer;
 import ca.uqac.dim.turtledb.*;
 
 /**
@@ -35,6 +37,9 @@ public class EngineDemo
     QueryPlan qp = new QueryPlan();
     // Plan for site 1
     {
+    	///SELECT *
+    	//Depuis site 2, frag sur site 2 (pourtant, A sur site 1 ?!?)
+    	//on rapatrie A sur site 2 ? pourquoi ?
       VariableTable vt = new VariableTable("&alpha;", "Site 2");
       vt.setRelation(new VariableTable("A"));
       qp.put("Site 1", vt);
@@ -43,6 +48,7 @@ public class EngineDemo
     }
     // Plan for site 2
     {
+    	//Depuis site 2, union de frag1 sur site1 et de frag2 sur site2
       Union u = new Union();
       u.addOperand(new VariableTable("&alpha;", "Site 1"));
       u.addOperand(new VariableTable("B", "Site 2"));
@@ -50,7 +56,7 @@ public class EngineDemo
       // Optional: echo the plan
       //System.out.println(GraphvizQueryFormatter.toGraphviz(u));
     }
-    
+    System.out.println(QueryOptimizer.getCost(qp));
     // Have the communicator execute the plan
     QueryProcessor p = cm.getQueryProcessor(qp);
     p.run();
@@ -65,18 +71,24 @@ public class EngineDemo
     {
       Table r = TableParser.parseFromCsv("A", "a,b,c\n0,0,0\n1,3,4\n0,1,1\n0,2,3\n1,2,3");
       site_1.putRelation("A", r);
+
+      System.out.println(r.tupleCount());
     }
     // Populate site 2
     Engine site_2 = new Engine("Site 2");
     {
       Table r = TableParser.parseFromCsv("B", "a,b,c\n0,0,0\n1,3,4\n0,1,1\n0,2,3\n1,2,3");
       site_2.putRelation("B", r);
+      System.out.println(r.tupleCount());
     }
     
     // Instantiates the centralized communication manager
     CentralizedCommunicator cm = new CentralizedCommunicator();
     cm.addSite(site_1);
     cm.addSite(site_2);
+    
+//    System.out.println(BD.);
+    BD.affiche();
     return cm;
   }
 }

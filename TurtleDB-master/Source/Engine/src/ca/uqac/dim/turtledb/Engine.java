@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import org.w3c.dom.Document;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
-
+import pack.*;
 /**
  * An engine does two things:
  * <ol>
@@ -54,7 +54,12 @@ public class Engine
    */
   protected String m_siteName;
   
-  /**
+  //rajouté
+  public String getName() {
+	return m_siteName;
+}
+
+/**
    * Instantiates a new database query engine. 
    */
   public Engine(String name)
@@ -64,6 +69,7 @@ public class Engine
     m_pendingQueries = new LinkedList<Relation>();
     m_numTuplesReceived = 0;
     m_siteName = name;
+    BD.addSite(this);
   }
   
   /**
@@ -76,6 +82,9 @@ public class Engine
   public void putRelation(String name, Relation r)
   {
     m_tables.put(name, r);
+    if(r instanceof Table) {
+    	BD.hostTable((Table)r, this);
+    }
   }
   
   /**
@@ -292,4 +301,9 @@ public class Engine
   {
     return m_numTuplesReceived;
   }
+
+public float getCost(Set<Relation> value) {
+	// TODO Auto-generated method stub
+	return 0;
+}
 }

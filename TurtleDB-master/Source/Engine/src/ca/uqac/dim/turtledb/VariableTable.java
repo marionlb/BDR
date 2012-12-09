@@ -36,6 +36,9 @@ public class VariableTable extends UnaryRelation
    */
   protected String m_site;
   
+  public int nTuples;
+  public float cost;
+  
   protected VariableTable()
   {
     super();
@@ -210,4 +213,5 @@ public class VariableTable extends UnaryRelation
     return null;
   }
   
+
 }

@@ -27,6 +27,9 @@ import java.util.*;
  */
 public class QueryPlan extends HashMap<String,Set<Relation>>
 {
+	//1. pourquoi un Set<Relation> ? il n'y en a qu'une à chaque fois
+	//2. Ensemble d'opérations simples (une seule opération) ou arbre entier à chaque fois ?
+	// si 2 : cmt représenter résultat intermédiaire ? nouveau fragment VariableTable ?
   /**
    * Dummy UID
    */
