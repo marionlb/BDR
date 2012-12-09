@@ -68,7 +68,8 @@ public abstract class NAryRelation extends Relation
     return m_relations.size();
   }
   
-  public int tupleCount()
+  @Override
+public int tupleCount()
   {
     int count = 0;
     for (Relation r : m_relations)
@@ -239,7 +240,8 @@ public abstract class NAryRelation extends Relation
     
   }
   ///////////temporaire//////////////
-  public String toString() {
+  @Override
+public String toString() {
 	  String res="", sep="";
 	  if(this instanceof Intersection) {
 		  sep="I";
@@ -258,7 +260,20 @@ public abstract class NAryRelation extends Relation
 	  return res;
   }
 
-public List<Relation> getM_relations() {
+public List<Relation> getRelations() {
 	return m_relations;
 }
+
+@Override
+public Object clone() {
+	    BinaryRelation r = null;
+	   
+	    r = (BinaryRelation) super.clone();
+	   for (Relation rel : m_relations) {
+		rel = (Relation) rel.clone();
+	}
+	    
+	    // on renvoie le clone
+	    return r;
+	}
 }
