@@ -20,6 +20,8 @@ package ca.uqac.dim.turtledb;
 import java.util.*;
 
 import ca.uqac.etud.turtledb.BD;
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
 
 /**
  * A Table is a list of tuples. Since the leaves of a relational query
@@ -221,6 +223,12 @@ public class Table extends Relation implements Cloneable
 	public RelationStreamIterator streamIterator()
 	{
 		return new TableStreamIterator();
+	}
+
+	@Override
+	public void maccept(MQueryVisitor v) throws MVisitorException
+	{
+		v.visit(this);
 	}
 
 	protected class TableStreamIterator extends RelationStreamIterator

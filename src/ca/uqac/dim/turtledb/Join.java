@@ -18,6 +18,8 @@
 package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
 
 public class Join extends BinaryRelation implements Cloneable
 {
@@ -64,6 +66,12 @@ public class Join extends BinaryRelation implements Cloneable
 	public void accept(QueryVisitor v) throws VisitorException
 	{
 		super.acceptBinary(v);
+		v.visit(this);
+	}
+
+	@Override
+	public void maccept(MQueryVisitor v) throws MVisitorException
+	{
 		v.visit(this);
 	}
 

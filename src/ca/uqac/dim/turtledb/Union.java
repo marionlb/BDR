@@ -18,6 +18,8 @@
 package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
 
 /**
  * Union of two relations. By default, the resulting schema will
@@ -34,6 +36,12 @@ public class Union extends NAryRelation
     super.acceptNAry(v);
     v.visit(this);
   }
+
+	@Override
+	public void maccept(MQueryVisitor v) throws MVisitorException
+	{
+		v.visit(this);
+	}
 
   protected class UnionStreamIterator extends NAryRelationStreamIterator
   {

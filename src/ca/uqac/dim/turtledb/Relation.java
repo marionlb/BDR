@@ -17,6 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
+import ca.uqac.etud.turtledb.MQueryVisitor;
 import java.util.*;
 
 /**
@@ -110,6 +111,7 @@ public float cost;
   }
   
   public abstract void accept(QueryVisitor v) throws QueryVisitor.VisitorException;
+  public abstract void maccept(MQueryVisitor v) throws MQueryVisitor.MVisitorException;
   
   /**
    * Computes the cardinality of a relation. Except for instances of

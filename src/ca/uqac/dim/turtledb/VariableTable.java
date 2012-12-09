@@ -17,6 +17,9 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
+
 /**
  * A VariableTable is a placeholder for an actual relation.
  * It is used to denote fragments of a query tree that are to
@@ -166,6 +169,12 @@ public class VariableTable extends UnaryRelation
     }
     return false;
   }
+
+	@Override
+	public void maccept(MQueryVisitor v) throws MVisitorException
+	{
+		v.visit(this);
+	}
   
   protected class VariableTableStreamIterator extends UnaryRelationStreamIterator
   {

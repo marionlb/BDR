@@ -20,6 +20,8 @@ import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.TableParser;
 import ca.uqac.dim.turtledb.UnaryRelation;
 import ca.uqac.dim.turtledb.VariableTable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class QueryOptimizer {
 
@@ -156,7 +158,17 @@ public class QueryOptimizer {
 	 * @return Le plan de requêtes optimisé
 	 */
 	public static QueryPlan optimizeQuery(Relation r) {
+		try
+		{
+			r = getOptimizeRelation(r);
+		} catch (VisitorException ex)
+		{
+			Logger.getLogger(QueryOptimizer.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		
+		
 		return null;
+		
 	}
 	public static Relation getOptimizeRelation(Relation r) throws VisitorException {
 		OptimizerQueryVisitor oqv = new OptimizerQueryVisitor();

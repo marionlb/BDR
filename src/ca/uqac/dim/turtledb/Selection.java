@@ -17,6 +17,8 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
+import ca.uqac.etud.turtledb.MQueryVisitor;
+
 public class Selection extends UnaryRelation implements Cloneable
 {
 
@@ -49,9 +51,14 @@ public class Selection extends UnaryRelation implements Cloneable
 	}
 
 	@Override
-	public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException
+	public void accept(QueryVisitor v) throws QueryVisitor.VisitorException
 	{
 		m_relation.accept(v);
+		v.visit(this);
+	}
+	@Override
+	public void maccept(MQueryVisitor v) throws MQueryVisitor.MVisitorException
+	{
 		v.visit(this);
 	}
 

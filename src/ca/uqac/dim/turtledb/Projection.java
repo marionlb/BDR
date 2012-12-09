@@ -17,6 +17,9 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
+import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
 import java.util.*;
 
 public class Projection extends UnaryRelation implements Cloneable
@@ -61,9 +64,15 @@ public class Projection extends UnaryRelation implements Cloneable
   }
 
   @Override
-  public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException 
+  public void accept(QueryVisitor v) throws VisitorException 
   {
     m_relation.accept(v);
+    v.visit(this);
+  }
+
+  @Override
+  public void maccept(MQueryVisitor v) throws MVisitorException 
+  {
     v.visit(this);
   }
   

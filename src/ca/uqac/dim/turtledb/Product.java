@@ -20,6 +20,8 @@ package ca.uqac.dim.turtledb;
 import java.util.Iterator;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
+import ca.uqac.etud.turtledb.MQueryVisitor;
+import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
 
 public class Product extends NAryRelation
 { 
@@ -42,6 +44,12 @@ public class Product extends NAryRelation
     super.acceptNAry(v);
     v.visit(this);
   }
+
+	@Override
+	public void maccept(MQueryVisitor v) throws MVisitorException
+	{
+		v.visit(this);
+	}
   
   protected class ProductStreamIterator extends NAryRelationStreamIterator
   {
