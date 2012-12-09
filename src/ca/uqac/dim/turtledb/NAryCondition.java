@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import java.util.*;
 
-public abstract class NAryCondition extends Condition
+public abstract class NAryCondition extends Condition implements Cloneable
 {
   public List<Condition> m_conditions;
   protected String m_operator;
@@ -65,4 +65,18 @@ public abstract class NAryCondition extends Condition
     }
     return out.toString();
   }
+
+@Override
+public Object clone() {
+	NAryCondition n = (NAryCondition) super.clone();
+	List<Condition> list = new LinkedList<Condition>();
+	
+	if (m_conditions!=null) {
+		for (Condition condition : this.m_conditions) {
+			list.add((Condition) condition.clone());
+		}
+		n.m_conditions = list;
+	}
+	return n;
+}
 }

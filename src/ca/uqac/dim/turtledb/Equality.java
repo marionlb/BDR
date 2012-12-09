@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public class Equality extends Condition
+public class Equality extends Condition implements Cloneable
 {
 	protected Literal m_left;
 	protected Literal m_right;
@@ -57,6 +57,7 @@ public class Equality extends Condition
 		return false;
 	}
 
+	@Override
 	public void accept(ConditionVisitor v)
 	{
 		v.visit(this);
@@ -78,7 +79,7 @@ public class Equality extends Condition
 	//  }
 
 	/**
-	 * Vérifie si la condition d'égalité est une condition de jointure
+	 * Vï¿½rifie si la condition d'ï¿½galitï¿½ est une condition de jointure
 	 * @return Un tableau des deux noms de tables si oui, null sinon
 	 */
 	public String[] joinTables() {
@@ -93,8 +94,15 @@ public class Equality extends Condition
 		return null; 
 	}
 
+	@Override
 	public String toString() {
 		return m_left +" == " +m_right;
+	}
+
+	@Override
+	public Object clone() {
+		// TODO Auto-generated method stub
+		return super.clone();
 	}
 
 

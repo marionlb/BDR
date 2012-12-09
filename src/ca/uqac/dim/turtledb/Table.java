@@ -34,238 +34,260 @@ import ca.uqac.etud.turtledb.BD;
  * @author sylvain
  *
  */
-public class Table extends Relation
+public class Table extends Relation implements Cloneable
 {
-  protected List<Tuple> m_tuples;
-  protected Schema m_schema;
-  protected int m_cursor;
-  protected String m_name;
-  
-  /**
-   * Empty constructor. Should only be called from another constructor.
-   */
-  /*package*/ Table()
-  {
-    super();
-    m_tuples = new ArrayList<Tuple>();
-    m_name = "";
-    BD.addTable(this);    
-  }
-  
-  public Table(String s)
-  {
-    this();
-    m_name = s;
-  }
-  
-  /**
-   * Constructor by copy
-   * @param r
-   */
-  public Table(Relation r)
-  {
-    this();
-    copy(r);
-  }
-  
-  /**
-   * Sets a name for the table. It is preferred to create a table
-   * with a name directly through the constructor, as using this method
-   * implies changing the table's name into every attribute of every
-   * tuple <i>a posteriori</i>.
-   * @param name The table's name
-   */
-  public void setName(String name)
-  {
-    m_name = name;
-    for (Tuple t : m_tuples)
-      t.setTable(m_name);
-  }
+	protected ArrayList<Tuple> m_tuples;
+	protected Schema m_schema;
+	protected int m_cursor;
+	protected String m_name;
 
-  /**
-   * Creates an empty table with given schema
-   * @param sch The table's schema
-   */
-  /*package*/ Table(Schema sch)
-  {
-    this();
-    m_schema = sch;
-  }
-  
-  /**
-   * Gives the table's name
-   * @return The table's name
-   */
-  public String getName()
-  {
-    return m_name;
-  }
-  
-  /**
-   * Sets the table's schema
-   * @param sch The schema
-   */
-  public void setSchema(Schema sch)
-  {
-	Schema s = new Schema(sch);
-	s.setTableName(m_name);
-    m_schema = s;
-  }
+	/**
+	 * Empty constructor. Should only be called from another constructor.
+	 */
+	/*package*/ Table()
+	{
+		super();
+		m_tuples = new ArrayList<Tuple>();
+		m_name = "";
+		BD.addTable(this);    
+	}
 
-  @Override
-  public Schema getSchema()
-  {
-    return m_schema;
-  }
-  
-  /**
-   * Adds a new tuple to the table. It is assumed that
-   * the tuple's degree is equal to the schema's degree.
-   * An <em>assertion</em> fails otherwise (but no exception
-   * is raised). This also affixes the table's name to each
-   * attribute, except if the table's name is the empty
-   * string.
-   * <p>
-   * The method put also ensures that the tuple is inserted
-   * at the correct location to keep the linked list sorted.
-   * @param t The tuple to add
-   */
-  public void put(Tuple t)
-  {
-    assert t != null;
-    assert t.size() == m_schema.size();
-    // Gives the current table's name to all the tuple's attributes
-    if (m_name != null && !m_name.isEmpty())
-      t.setTable(m_name);
-    int index = Collections.binarySearch(m_tuples, t);
-    if (index < 0) // We silently ignore tuples that are already present
-      m_tuples.add(-index-1, t);
-  }
-  
-  /**
-   * Adds a collection of tuples to the table. This is just
-   * the repeated application of {@link put} to every tuple in
-   * the collection.
-   * @param tuples The tuples to add
-   */
-  public void putAll(Collection<Tuple> tuples)
-  {
-    for (Tuple t : tuples)
-    {
-      put(t);
-    }
-  }
-  
-  @Override
-  public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException
-  {
-    v.visit(this);
-  }
-  
-  /**
-   * Copies the contents of a relation into the current relation.
-   * In particular, invoking {@link copy} with a query tree triggers the
-   * computation of that query and the storing of the resulting tuples
-   * into the current relation. <b>Warning:</b> make sure you reset <tt>r</tt>
-   * before calling <tt>copy()</tt>.
-   * @param r The relation to copy from
-   */
-  public void copy(Relation r)
-  {
-    assert r != null;
-    m_schema = r.getSchema();
-    Iterator<Tuple> i = r.streamIterator();
-    while (i.hasNext())
-    {
-      this.put(i.next());
-    }
-  }
-  
-  public int getCardinality()
-  {
-    return m_tuples.size();
-  }
-  
-  /**
-   * Determines if a relation contains a given tuple. Contrarily to the
-   * generic implementation of {@link contains}, the method for instances
-   * of {@link Table} <em>is</em> efficient, as it simply calls the
-   * contains method of the underlying list of tuples. It does not
-   * present the side effects (reset of enumeration) that the generic
-   * method has.
-   * @param tup The tuple to look for
-   * @return True if the tuple is present, false otherwise
-   */
-  @Override
-  public boolean contains(Tuple tup)
-  {
-    if (tup == null)
-      return false;
-    return m_tuples.contains(tup);
-  }
-  
-  public int tupleCount()
-  {
-    return m_tuples.size();
-  }
-  
-  @Override
-  public final boolean isLeaf()
-  {
-    return true;
-  }
+	public Table(String s)
+	{
+		this();
+		m_name = s;
+	}
 
-  @Override
-  public RelationStreamIterator streamIterator()
-  {
-    return new TableStreamIterator();
-  }
-  
-  protected class TableStreamIterator extends RelationStreamIterator
-  {
-    protected Iterator<Tuple> m_iterator;
-    
-    public TableStreamIterator()
-    {
-      m_iterator = m_tuples.iterator();
-    }
+	/**
+	 * Constructor by copy
+	 * @param r
+	 */
+	public Table(Relation r)
+	{
+		this();
+		copy(r);
+	}
 
-    @Override
-    protected Tuple internalNext()
-    {
-      if (m_iterator.hasNext())
-        return m_iterator.next();
-      return null;
-    }
-    
-    public void reset()
-    {
-      super.reset();
-      m_iterator = m_tuples.iterator();
-    }
-  }
-  
-  protected Iterator<Tuple> tupleIterator()
-  {
-    return m_tuples.iterator();
-  }
-  
-  protected class TableCacheIterator extends RelationCacheIterator
-  {
+	/**
+	 * Sets a name for the table. It is preferred to create a table
+	 * with a name directly through the constructor, as using this method
+	 * implies changing the table's name into every attribute of every
+	 * tuple <i>a posteriori</i>.
+	 * @param name The table's name
+	 */
+	public void setName(String name)
+	{
+		m_name = name;
+		for (Tuple t : m_tuples)
+			t.setTable(m_name);
+	}
 
-    @Override
-    protected void getIntermediateResult()
-    {
-      // The intermediate result is the table itself
-      super.m_intermediateResult = Table.this; 
-    }
-    
-  }
+	/**
+	 * Creates an empty table with given schema
+	 * @param sch The table's schema
+	 */
+	/*package*/ Table(Schema sch)
+	{
+		this();
+		m_schema = sch;
+	}
 
-  @Override
-  public RelationIterator cacheIterator()
-  {
-    return new TableStreamIterator();
-  }
+	/**
+	 * Gives the table's name
+	 * @return The table's name
+	 */
+	public String getName()
+	{
+		return m_name;
+	}
 
+	/**
+	 * Sets the table's schema
+	 * @param sch The schema
+	 */
+	public void setSchema(Schema sch)
+	{
+		Schema s = new Schema(sch);
+		s.setTableName(m_name);
+		m_schema = s;
+	}
+
+	@Override
+	public Schema getSchema()
+	{
+		return m_schema;
+	}
+
+	/**
+	 * Adds a new tuple to the table. It is assumed that
+	 * the tuple's degree is equal to the schema's degree.
+	 * An <em>assertion</em> fails otherwise (but no exception
+	 * is raised). This also affixes the table's name to each
+	 * attribute, except if the table's name is the empty
+	 * string.
+	 * <p>
+	 * The method put also ensures that the tuple is inserted
+	 * at the correct location to keep the linked list sorted.
+	 * @param t The tuple to add
+	 */
+	public void put(Tuple t)
+	{
+		assert t != null;
+		assert t.size() == m_schema.size();
+		// Gives the current table's name to all the tuple's attributes
+		if (m_name != null && !m_name.isEmpty())
+			t.setTable(m_name);
+		int index = Collections.binarySearch(m_tuples, t);
+		if (index < 0) // We silently ignore tuples that are already present
+			m_tuples.add(-index-1, t);
+	}
+
+	/**
+	 * Adds a collection of tuples to the table. This is just
+	 * the repeated application of {@link put} to every tuple in
+	 * the collection.
+	 * @param tuples The tuples to add
+	 */
+	public void putAll(Collection<Tuple> tuples)
+	{
+		for (Tuple t : tuples)
+		{
+			put(t);
+		}
+	}
+
+	@Override
+	public void accept(QueryVisitor v) throws EmptyQueryVisitor.VisitorException
+	{
+		v.visit(this);
+	}
+
+	/**
+	 * Copies the contents of a relation into the current relation.
+	 * In particular, invoking {@link copy} with a query tree triggers the
+	 * computation of that query and the storing of the resulting tuples
+	 * into the current relation. <b>Warning:</b> make sure you reset <tt>r</tt>
+	 * before calling <tt>copy()</tt>.
+	 * @param r The relation to copy from
+	 */
+	public void copy(Relation r)
+	{
+		assert r != null;
+		m_schema = r.getSchema();
+		Iterator<Tuple> i = r.streamIterator();
+		while (i.hasNext())
+		{
+			this.put(i.next());
+		}
+	}
+
+	@Override
+	public int getCardinality()
+	{
+		return m_tuples.size();
+	}
+
+	/**
+	 * Determines if a relation contains a given tuple. Contrarily to the
+	 * generic implementation of {@link contains}, the method for instances
+	 * of {@link Table} <em>is</em> efficient, as it simply calls the
+	 * contains method of the underlying list of tuples. It does not
+	 * present the side effects (reset of enumeration) that the generic
+	 * method has.
+	 * @param tup The tuple to look for
+	 * @return True if the tuple is present, false otherwise
+	 */
+	@Override
+	public boolean contains(Tuple tup)
+	{
+		if (tup == null)
+			return false;
+		return m_tuples.contains(tup);
+	}
+
+	@Override
+	public int tupleCount()
+	{
+		return m_tuples.size();
+	}
+
+	@Override
+	public final boolean isLeaf()
+	{
+		return true;
+	}
+
+	@Override
+	public RelationStreamIterator streamIterator()
+	{
+		return new TableStreamIterator();
+	}
+
+	protected class TableStreamIterator extends RelationStreamIterator
+	{
+		protected Iterator<Tuple> m_iterator;
+
+		public TableStreamIterator()
+		{
+			m_iterator = m_tuples.iterator();
+		}
+
+		@Override
+		protected Tuple internalNext()
+		{
+			if (m_iterator.hasNext())
+				return m_iterator.next();
+			return null;
+		}
+
+		@Override
+		public void reset()
+		{
+			super.reset();
+			m_iterator = m_tuples.iterator();
+		}
+	}
+
+	protected Iterator<Tuple> tupleIterator()
+	{
+		return m_tuples.iterator();
+	}
+
+	protected class TableCacheIterator extends RelationCacheIterator
+	{
+
+		@Override
+		protected void getIntermediateResult()
+		{
+			// The intermediate result is the table itself
+			super.m_intermediateResult = Table.this; 
+		}
+
+	}
+
+	@Override
+	public RelationIterator cacheIterator()
+	{
+		return new TableStreamIterator();
+	}
+
+	@Override
+	public Object clone() {
+		Table r = null;
+
+		r = (Table) super.clone();
+
+		if(r.getSchema()!=null)
+			r.setSchema(new Schema(this.getSchema()));
+
+		if (m_tuples!=null) {
+			ArrayList<Tuple> list = new ArrayList<Tuple>();
+			for (Tuple tuple : this.m_tuples) {
+				list.add(new Tuple(tuple));
+			}
+			r.m_tuples = list;
+		}
+		// on renvoie le clone
+		return r;
+	}
 }

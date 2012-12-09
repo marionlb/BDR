@@ -19,20 +19,28 @@ package ca.uqac.dim.turtledb;
 
 public class EmptyQueryVisitor extends QueryVisitor
 {
-  public void visit(Projection r) throws VisitorException {} 
+  @Override
+public void visit(Projection r) throws VisitorException {} 
   
-  public void visit(Selection r) throws VisitorException {} 
+  @Override
+public void visit(Selection r) throws VisitorException {} 
   
-  public void visit(Table r) throws VisitorException {} 
+  @Override
+public void visit(Table r) throws VisitorException {} 
   
-  public void visit(VariableTable r) throws VisitorException {}
+  @Override
+public void visit(VariableTable r) throws VisitorException {}
   
-  public void visit(Union r) throws VisitorException {}
+  @Override
+public void visit(Union r) throws VisitorException {}
   
-  public void visit(Intersection r) throws VisitorException {}
+  @Override
+public void visit(Intersection r) throws VisitorException {}
   
-  public void visit(Join r) throws VisitorException {}
+  @Override
+public void visit(Join r) throws VisitorException {}
   
-  public void visit(Product r) throws VisitorException {}
+  @Override
+public void visit(Product r) throws VisitorException {}
   
 }

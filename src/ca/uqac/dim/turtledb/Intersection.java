@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 
-public class Intersection extends NAryRelation
+public class Intersection extends NAryRelation implements Cloneable
 {   
 
   @Override
@@ -118,5 +118,11 @@ public class Intersection extends NAryRelation
       m_intermediateResult = tab;
     }
   }
+
+@Override
+public Object clone() {
+	// TODO Auto-generated method stub
+	return super.clone();
+}
 
 }

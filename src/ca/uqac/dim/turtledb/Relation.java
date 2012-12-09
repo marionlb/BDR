@@ -25,7 +25,7 @@ import java.util.*;
  * @author sylvain
  *
  */
-public abstract class Relation
+public abstract class Relation implements Cloneable
 {
   
   /**
@@ -193,4 +193,21 @@ public float cost;
   {
     return false;
   }
+  
+  @Override
+public Object clone() {
+	    Relation r = null;
+	    try {
+	    	// On récupère l'instance à renvoyer par l'appel de la 
+	      	// méthode super.clone()
+	      	r = (Relation) super.clone();
+	    } catch(CloneNotSupportedException cnse) {
+	      	// Ne devrait jamais arriver car nous implémentons 
+	      	// l'interface Cloneable
+	      	cnse.printStackTrace(System.err);
+	    }
+	    	    
+	    // on renvoie le clone
+	    return r;
+	}
 }

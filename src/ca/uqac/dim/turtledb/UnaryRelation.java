@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public abstract class UnaryRelation extends Relation
+public abstract class UnaryRelation extends Relation implements Cloneable
 {
   protected Relation m_relation;
   protected boolean toTrash = false;
@@ -96,4 +96,15 @@ public abstract class UnaryRelation extends Relation
   public Relation getRelation() {
 	  return m_relation;
   }
+	@Override
+	public Object clone() {
+		UnaryRelation r = null;
+
+		r = (UnaryRelation) super.clone();
+		if(this.m_relation != null)
+			r.m_relation = (Relation) this.m_relation.clone();
+
+		// on renvoie le clone
+		return r;
+	}
 }

@@ -92,7 +92,8 @@ public abstract class RelationStreamIterator implements RelationIterator
    * Resets the enumeration of tuples, i.e. starts back at
    * the first tuple of the relation.
    */
-  public void reset()
+  @Override
+public void reset()
   {
     m_nextTuple = null;
     m_outputTuples.clear();

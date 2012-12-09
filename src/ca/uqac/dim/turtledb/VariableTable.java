@@ -161,7 +161,7 @@ public class VariableTable extends UnaryRelation
       return true;
     if (m_relation instanceof VariableTable)
     {
-      Relation vt = (Relation) m_relation;
+      Relation vt = m_relation;
       return vt.isLeaf();
     }
     return false;

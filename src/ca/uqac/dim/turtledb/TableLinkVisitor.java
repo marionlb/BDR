@@ -34,7 +34,8 @@ public class TableLinkVisitor extends EmptyQueryVisitor
     m_tables = tables;
   }
   
-  public void visit(VariableTable t) //throws EmptyQueryVisitor.VisitorException
+  @Override
+public void visit(VariableTable t) //throws EmptyQueryVisitor.VisitorException
   {
     String table_name = t.getName();
     Relation r = m_tables.get(table_name);

@@ -34,7 +34,8 @@ public class CentralizedCommunicator extends Communicator
     m_results = new LinkedList<Relation>();
   }
   
-  public void run()
+  @Override
+public void run()
   {
     // Do nothing
   }
@@ -88,7 +89,8 @@ public class CentralizedCommunicator extends Communicator
     return processed.size() > 0; 
   }
   
-  public QueryProcessor getQueryProcessor(Relation query)
+  @Override
+public QueryProcessor getQueryProcessor(Relation query)
   {
     // Pick a site
     return getQueryProcessor(query, "Site 1");
@@ -101,7 +103,8 @@ public class CentralizedCommunicator extends Communicator
     return getQueryProcessor(qp);
   }
   
-  public QueryProcessor getQueryProcessor(QueryPlan qp)
+  @Override
+public QueryProcessor getQueryProcessor(QueryPlan qp)
   {
     return new CentralizedQueryProcessor(qp);
   }

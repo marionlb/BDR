@@ -35,7 +35,11 @@ public class Tuple implements Comparable<Tuple>
     m_attributes = new Vector<Attribute>();
     m_values = new Vector<Value>();
   }
-  
+  public Tuple(Tuple t ) {
+	  this();
+	  this.m_attributes = t.m_attributes;
+	  this.m_values = t.m_values;
+  }
   public Tuple(Schema sch, Value[] val)
   {
     this();
@@ -205,4 +209,5 @@ public class Tuple implements Comparable<Tuple>
     }
     return t;
   }
+  
 }

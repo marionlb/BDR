@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public class Attribute extends Literal
+public class Attribute extends Literal implements Cloneable
 {
   protected String m_value;
   protected String m_tableName;
@@ -148,4 +148,10 @@ public class Attribute extends Literal
     }
     return 0;
   }
+
+@Override
+protected Object clone() throws CloneNotSupportedException {
+	// TODO Auto-generated method stub
+	return super.clone();
+}
 }

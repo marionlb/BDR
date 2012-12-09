@@ -36,7 +36,8 @@ public class LogicalAnd extends NAryCondition
     return true;
   }
   
-  public void accept(ConditionVisitor v)
+  @Override
+public void accept(ConditionVisitor v)
   {
     super.acceptNAry(v);
     v.visit(this);
