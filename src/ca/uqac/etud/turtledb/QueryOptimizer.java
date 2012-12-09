@@ -17,14 +17,13 @@ import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Schema;
 import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.TableParser;
-import ca.uqac.dim.turtledb.Tuple;
 import ca.uqac.dim.turtledb.UnaryRelation;
 import ca.uqac.dim.turtledb.VariableTable;
 
 public class QueryOptimizer {
 
-	static HashMap<String,Float> varInterCouts;
-	static HashMap<String,Integer> varInterTuples;
+	static HashMap<String, Float> varInterCouts;
+	static HashMap<String, Integer> varInterTuples;
 	/**
 	 * Les sites composant la base de donn�es r�partie
 	 */
@@ -47,7 +46,7 @@ public class QueryOptimizer {
 	 * Matrice des co�ts de communication
 	 */
 	// float[][] coutsComm;
-	static Matrice coutsComm ;
+	static Matrice coutsComm;
 
 	/**
 	 * Calcule le co�t d'un plan de requ�tes donn�, � partir des co�ts de
@@ -58,98 +57,105 @@ public class QueryOptimizer {
 	 * @return Le co�t total du plan de requ�tes.
 	 */
 	public static float getCost(QueryPlan qp) {
-		if(coutsStockage==null || coutsComm==null)
+		if (coutsStockage == null || coutsComm == null)
 			for (Engine site : BD.sites.values()) {
 				QueryOptimizer.addDefaultCost(site.getName());
 			}
 
 		float res = 0;
 		varInterCouts = new HashMap<String, Float>();
-		for (Entry<String,Set<Relation>> entry : qp.entrySet()) {
-			res+=cost(entry.getKey(), entry.getValue());
-			System.out.println(res);
+		for (Entry<String, Set<Relation>> entry : qp.entrySet()) {
+			res += cost(entry.getKey(), entry.getValue());
 		}
 		return res;
 	}
 
 	public static float cost(String site, Set<Relation> set) {
-		float res=0;
-		if(!BD.sites.containsKey(site))
+		float res = 0;
+		if (!BD.sites.containsKey(site))
 			return -1;
 
 		for (Iterator<Relation> iterator = set.iterator(); iterator.hasNext();) {
 			Relation r = iterator.next();
 
-			if(r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
-				VariableTable vt = (VariableTable)r;
+			if (r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
+				VariableTable vt = (VariableTable) r;
 
-				res += calcCost(site,vt.getRelation());
+				res += calcCost(site, vt.getRelation());
 
-
-				if(vt.getRelation() instanceof VariableTable) {
-					String siteTransfert =  vt.getSite();
-					if(BD.sites.containsKey(siteTransfert)) {
+				if (vt.getSite()!=null && vt.getSite()!="") {
+					String siteTransfert = vt.getSite();
+					if (BD.sites.containsKey(siteTransfert)) {
 						float coutTransfert = cost(siteTransfert, site);
-						coutTransfert*=((VariableTable)vt.getRelation()).nTuples;
-						res+=coutTransfert;
+						System.out.println(vt.getName() +" : " +vt.getRelation().nTuples +" tuples");
+						coutTransfert *= vt.getRelation().nTuples;
+						res += coutTransfert;
 					}
 				}
 
-
-				varInterCouts.put( ((VariableTable)r).getName(), res);
+				varInterCouts.put(((VariableTable) r).getName(), res);
 			} else
 				res = calcCost(site, r);
 		}
+		System.out.println(site + " : " + res);
 		return res;
 	}
 
-	private static float calcCost(String site,  Relation r) {
-		float res =0;
+	private static float calcCost(String site, Relation r) {
+		float res = 0;
 
-		//cas R�sultat interm�diaire feuille : cout d�j� calcul�
-		if(r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
-			VariableTable vt = (VariableTable)r;
-			if(!varInterCouts.containsKey(vt.getName())) {
+		// cas R�sultat interm�diaire feuille : cout d�j� calcul�
+		if (r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
+			VariableTable vt = (VariableTable) r;
+			if (!varInterCouts.containsKey(vt.getName())) {
 				return -3;
 			}
-			float cost= varInterCouts.get(vt.getName());
-			//			res=cost;
-		} 
-		//cas Table : transfert des tuples
-		else if(/*r instanceof Table || */r instanceof VariableTable && BD.isATable((VariableTable) r)) {
-			//cout = nb tuples d�plac�s * cout de deplacement
-			//			Table table = (r instanceof Table ? (Table) r : BD.tables.get(((VariableTable)r).getName()));
-			Table table = BD.getTable((VariableTable)r);
-			if(BD.isHostedOn(table)==null)
+			float cost = varInterCouts.get(vt.getName());
+//			vt.nTuples = cost;
+			// res=cost;
+		}
+		// cas Table : transfert des tuples
+		else if (/* r instanceof Table || */r instanceof VariableTable
+				&& BD.isATable((VariableTable) r)) {
+			// cout = nb tuples d�plac�s * cout de deplacement
+			// Table table = (r instanceof Table ? (Table) r :
+			// BD.tables.get(((VariableTable)r).getName()));
+			Table table = BD.getTable((VariableTable) r);
+			if (BD.isHostedOn(table) == null)
 				return -2;
 			String[] siteNames = BD.isHostedOn(table).split("\n");
 			float coutMin = Float.MAX_VALUE;
 			for (String siteName : siteNames) {
-				System.out.println(siteName);
-				if(siteName.equals(site)) {
-					coutMin=0;
+				if (siteName.equals(site)) {
+					coutMin = 0;
 					break;
-				}
-				else if (coutsComm.get(site, siteName)<coutMin) {
-					coutMin = coutsComm.get(site, siteName);
+				} else if (cost(site, siteName) < coutMin) {
+					coutMin = cost(site, siteName);
 				}
 			}
-			res=(coutMin+coutsStockage.get(site))*(table).tupleCount();
-			((VariableTable)r).nTuples=table.tupleCount();
-			((VariableTable)r).cost=res;
+			r.nTuples = table.tupleCount();
+			System.out.println(table.getName()+" : "+r.nTuples+" tuples.");
+			res = coutMin * r.nTuples;
 
-		} else if(r instanceof BinaryRelation) {
-			res=calcCost(site,((BinaryRelation)r).getLeft());
-			res+=calcCost(site,((BinaryRelation)r).getRight());
+		} else if (r instanceof BinaryRelation) {
+			res = calcCost(site, ((BinaryRelation) r).getLeft());
+			res += calcCost(site, ((BinaryRelation) r).getRight());
+			
+			r.nTuples = Math.max(((BinaryRelation) r).getLeft().nTuples, ((BinaryRelation) r).getRight().nTuples);
+	
 		} else if (r instanceof NAryRelation) {
-			for (Relation rel : ((NAryRelation)r).getM_relations()) {
-				res+=calcCost(site, rel);
+			for (Relation rel : ((NAryRelation) r).getM_relations()) {
+				res += calcCost(site, rel);
+				r.nTuples = Math.max(r.nTuples, rel.nTuples);
 			}
 		} else if (r instanceof UnaryRelation) {
-			res=calcCost(site, ((UnaryRelation) r).getRelation());
+			res = calcCost(site, ((UnaryRelation) r).getRelation());
+			r.nTuples = ((UnaryRelation) r).getRelation().nTuples;
 		}
+		r.cost = res;
 		return res;
 	}
+
 	/**
 	 * Calcule le meilleur plan de requ�tes distribu� possible pour une requ�te,
 	 * en mati�re de co�t
@@ -161,7 +167,6 @@ public class QueryOptimizer {
 	public QueryPlan optimizeQuery(Relation r) {
 		return null;
 	}
-
 
 	static QueryOptimizer randomInit(int nbSites, int nbTables) {
 		// init
@@ -211,20 +216,20 @@ public class QueryOptimizer {
 	}
 
 	public static float cost(String siteDest, String s2) {
-		return coutsStockage.get(siteDest)+coutsComm.get(siteDest, s2);
+		return coutsStockage.get(siteDest) + coutsComm.get(siteDest, s2);
 	}
 
 	public static void addDefaultCost(String site1) {
-		if(coutsStockage==null)
+		if (coutsStockage == null)
 			coutsStockage = new HashMap<String, Float>();
-		if(coutsComm==null)
-			coutsComm=new Matrice();
+		if (coutsComm == null)
+			coutsComm = new Matrice();
 
-		//cout stockage
-		coutsStockage.put(site1,(float) 0.01);
-		//cout comm
+		// cout stockage
+		coutsStockage.put(site1, (float) 0.01);
+		// cout comm
 		for (Engine site : BD.sites.values()) {
-			if(!site.getName().equals(site1))
+			if (!site.getName().equals(site1))
 				coutsComm.set(site1, site.getName(), 1);
 		}
 	}
@@ -234,9 +239,9 @@ class Matrice extends HashMap<String, Float> {
 
 	public Matrice() {
 		super();
-		//		for (Engine site : BD.sites.values()) {
-		//			QueryOptimizer.addDefaultCost(site.getName());
-		//		}
+		// for (Engine site : BD.sites.values()) {
+		// QueryOptimizer.addDefaultCost(site.getName());
+		// }
 	}
 
 	private void add(String site1, String site2, float cout) {
@@ -251,12 +256,13 @@ class Matrice extends HashMap<String, Float> {
 		}
 		return -1;
 	}
+
 	public void set(String site1, String site2, float cout) {
-		if(!this.containsKey(site1 + "-" + site2) &&
-				!this.containsKey(site2 + "-" + site1) ) {
+		if (!this.containsKey(site1 + "-" + site2)
+				&& !this.containsKey(site2 + "-" + site1)) {
 			this.add(site1, site2, cout);
 		} else {
-			if(this.containsKey(site1)) {
+			if (this.containsKey(site1)) {
 				this.remove(site1);
 			} else {
 				this.remove(site2);

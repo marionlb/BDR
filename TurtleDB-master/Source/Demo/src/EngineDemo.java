@@ -41,7 +41,11 @@ public class EngineDemo
     	//Depuis site 2, frag sur site 2 (pourtant, A sur site 1 ?!?)
     	//on rapatrie A sur site 2 ? pourquoi ?
       VariableTable vt = new VariableTable("&alpha;", "Site 2");
-      vt.setRelation(new VariableTable("A"));
+//      vt.setRelation(new VariableTable("A"));
+      Join j = new Join();
+      j.setLeft(new VariableTable("A"));
+      j.setRight(new VariableTable("B"));
+      vt.setRelation(j);
       qp.put("Site 1", vt);
       // Optional: echo the plan
       //System.out.println(GraphvizQueryFormatter.toGraphviz(vt));
@@ -56,12 +60,12 @@ public class EngineDemo
       // Optional: echo the plan
       //System.out.println(GraphvizQueryFormatter.toGraphviz(u));
     }
-    System.out.println(QueryOptimizer.getCost(qp));
-    // Have the communicator execute the plan
-    QueryProcessor p = cm.getQueryProcessor(qp);
-    p.run();
-    Relation result = p.getResult();
-    System.out.println(result);
+    System.out.println("Total : "+QueryOptimizer.getCost(qp));
+//    // Have the communicator execute the plan
+//    QueryProcessor p = cm.getQueryProcessor(qp);
+//    p.run();
+//    Relation result = p.getResult();
+//    System.out.println(result);
   }
   
   private static Communicator createCommunicator()
@@ -72,14 +76,14 @@ public class EngineDemo
       Table r = TableParser.parseFromCsv("A", "a,b,c\n0,0,0\n1,3,4\n0,1,1\n0,2,3\n1,2,3");
       site_1.putRelation("A", r);
 
-      System.out.println(r.tupleCount());
+//      System.out.println(r.tupleCount());
     }
     // Populate site 2
     Engine site_2 = new Engine("Site 2");
     {
       Table r = TableParser.parseFromCsv("B", "a,b,c\n0,0,0\n1,3,4\n0,1,1\n0,2,3\n1,2,3");
       site_2.putRelation("B", r);
-      System.out.println(r.tupleCount());
+//      System.out.println(r.tupleCount());
     }
     
     // Instantiates the centralized communication manager
@@ -87,8 +91,7 @@ public class EngineDemo
     cm.addSite(site_1);
     cm.addSite(site_2);
     
-//    System.out.println(BD.);
-    BD.affiche();
+//    BD.affiche();
     return cm;
   }
 }

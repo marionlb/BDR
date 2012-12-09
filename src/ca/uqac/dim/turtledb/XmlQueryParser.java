@@ -471,7 +471,7 @@ public class XmlQueryParser
    * @param e An XML DOM node
    * @return
    */
-  protected static VariableTable parseVariableTable(Node e) throws XmlQueryParser.ParseException
+  protected static Relation parseVariableTable(Node e) throws XmlQueryParser.ParseException
   {
     VariableTable vt = new VariableTable();
     NodeList nl = e.getChildNodes();
