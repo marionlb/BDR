@@ -77,19 +77,8 @@ public class Equality extends Condition implements Cloneable
 	//////////////////////////Rajout//////////////////////
 	//////////////////////////////////////////////////////
 
-	//  public boolean isJoinCondition() {
-	//	  if(m_left instanceof Value || m_right instanceof Value)
-	//		  return false;
-	//	  Attribute l=(Attribute)m_left,r=(Attribute)m_right;
-	//	  if(l.getTableName()=="" || r.getTableName()=="")
-	//		  return false;
-	//	  if(l.getTableName()!=r.getTableName())
-	//		  return true;
-	//	  return false; 
-	//  }
-
 	/**
-	 * V�rifie si la condition d'�galit� est une condition de jointure
+	 * Vérifie si la condition d'égalité est une condition de jointure
 	 * @return Un tableau des deux noms de tables si oui, null sinon
 	 */
 	public String[] joinTables() {
@@ -111,7 +100,6 @@ public class Equality extends Condition implements Cloneable
 
 	@Override
 	public Object clone() {
-		// TODO Auto-generated method stub
 		return super.clone();
 	}
 
