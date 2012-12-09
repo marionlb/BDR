@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public class Selection extends UnaryRelation
+public class Selection extends UnaryRelation implements Cloneable
 {
 	protected Condition m_condition;
 

@@ -34,7 +34,7 @@ import ca.uqac.etud.turtledb.BD;
  * @author sylvain
  *
  */
-public class Table extends Relation
+public class Table extends Relation implements Cloneable
 {
 	protected ArrayList<Tuple> m_tuples;
 	protected Schema m_schema;

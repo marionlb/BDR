@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public class Equality extends Condition
+public class Equality extends Condition implements Cloneable
 {
 	protected Literal m_left;
 	protected Literal m_right;

@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 
-public class Join extends BinaryRelation
+public class Join extends BinaryRelation implements Cloneable
 {
 	protected Product m_product;
 	protected Condition m_condition;

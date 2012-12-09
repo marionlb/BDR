@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import java.util.*;
 
-public class Projection extends UnaryRelation
+public class Projection extends UnaryRelation implements Cloneable
 {
   protected Schema m_schema;
   

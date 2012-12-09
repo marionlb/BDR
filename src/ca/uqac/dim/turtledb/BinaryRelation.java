@@ -23,7 +23,7 @@ import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
  * A binary relation has exactly two operands.
  * @author sylvain
  */
-public abstract class BinaryRelation extends Relation
+public abstract class BinaryRelation extends Relation implements Cloneable
 {
 	protected Relation m_left;
 	protected Relation m_right;

@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public abstract class Condition
+public abstract class Condition implements Cloneable
 {
   public abstract boolean evaluate(Tuple t);
   

@@ -17,7 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-public class Attribute extends Literal
+public class Attribute extends Literal implements Cloneable
 {
   protected String m_value;
   protected String m_tableName;

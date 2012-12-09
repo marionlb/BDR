@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import java.util.*;
 
-public abstract class NAryCondition extends Condition
+public abstract class NAryCondition extends Condition implements Cloneable
 {
   public List<Condition> m_conditions;
   protected String m_operator;
