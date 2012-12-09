@@ -1,4 +1,4 @@
-package pack;
+package ca.uqac.etud.turtledb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,22 +12,22 @@ import ca.uqac.dim.turtledb.VariableTable;
 public class BD {
 
 	/**
-	 * Liste des tables ({@link Table}), indexées par leur nom
+	 * Liste des tables ({@link Table}), indexï¿½es par leur nom
 	 */
 	static HashMap<String, Table> tables = new HashMap<String, Table>();
 	/**
-	 * Liste des sites ({@link Engine}, indexés par leur nom
+	 * Liste des sites ({@link Engine}, indexï¿½s par leur nom
 	 */
 	static HashMap<String, Engine> sites = new HashMap<String, Engine>();
 
 	/**
-	 * Répertoire des fragments, classés par Table
+	 * Rï¿½pertoire des fragments, classï¿½s par Table
 	 */
 	// static HashMap<String, List<VariableTable>> fragmentsTables = new
 	// HashMap<String, List<VariableTable>>();
 
 	/**
-	 * Répertoire des fragments, classés par site
+	 * Rï¿½pertoire des fragments, classï¿½s par site
 	 */
 	// static HashMap<String, List<VariableTable>> fragmentsSites = new
 	// HashMap<String, List<VariableTable>>();
@@ -50,7 +50,7 @@ public class BD {
 		if (!sites.containsKey(site.getName())) {
 			addSite(site);
 		}
-		// on indexe la table par rapport à son site
+		// on indexe la table par rapport ï¿½ son site
 		if (!tablesSites.containsKey(site.getName())) {
 			ArrayList<Table> al = new ArrayList<Table>();
 			al.add(table);
@@ -59,7 +59,7 @@ public class BD {
 			List<Table> l = tablesSites.get(site.getName());
 			l.add(table);
 		}
-		// on indexe le site par rapport à la table
+		// on indexe le site par rapport ï¿½ la table
 		if (!sitesTables.containsKey(table.getName())) {
 			ArrayList<Engine> al = new ArrayList<Engine>();
 			al.add(site);
@@ -84,7 +84,7 @@ public class BD {
 			System.err.println("Table inconnue : " + table.getName());
 		} else if (!sitesTables.containsKey(table.getName())) {
 			System.err
-					.println("La table est reconnue mais pas hébergée sur un site : "
+					.println("La table est reconnue mais pas hï¿½bergï¿½e sur un site : "
 							+ table.getName());
 		} else {
 			String res = "";
@@ -104,7 +104,7 @@ public class BD {
 		if (!sites.containsKey(siteName)) {
 			System.err.println("Site inconnu : " + siteName);
 		} else if (!tablesSites.containsKey(siteName)) {
-			System.err.println("Site non utilisé : " + siteName);
+			System.err.println("Site non utilisï¿½ : " + siteName);
 		} else {
 			String res = "";
 			List<Table> list = tablesSites.get(siteName);
@@ -196,7 +196,7 @@ public class BD {
 	// if (!sites.containsKey(site.getName())) {
 	// addSite(site);
 	// }
-	// // on ajoute le fragment dans le répertoire des sites
+	// // on ajoute le fragment dans le rï¿½pertoire des sites
 	// if (!fragmentsSites.containsKey(site.getName())) {
 	// ArrayList<VariableTable> al = new ArrayList<VariableTable>();
 	// al.add(frag);
@@ -205,7 +205,7 @@ public class BD {
 	// List<VariableTable> l = fragmentsSites.get(site.getName());
 	// l.add(frag);
 	// }
-	// // on ajoute le fragment dans le répertoire des tables
+	// // on ajoute le fragment dans le rï¿½pertoire des tables
 	// if (!fragmentsTables.containsKey(table.getName())) {
 	// ArrayList<VariableTable> al = new ArrayList<VariableTable>();
 	// al.add(frag);

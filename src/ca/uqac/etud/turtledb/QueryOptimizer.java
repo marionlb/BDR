@@ -1,4 +1,4 @@
-package pack;
+package ca.uqac.etud.turtledb;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,36 +26,36 @@ public class QueryOptimizer {
 	static HashMap<String,Float> varInterCouts;
 	static HashMap<String,Integer> varInterTuples;
 	/**
-	 * Les sites composant la base de données répartie
+	 * Les sites composant la base de donnï¿½es rï¿½partie
 	 */
 	HashMap<String, Engine> listeSites;
 
 	/**
-	 * Le nom et la composition (i.e. expression d'algèbre relationnelle) de
+	 * Le nom et la composition (i.e. expression d'algï¿½bre relationnelle) de
 	 * chacun des fragments + La solution d'allocation des fragments sur chacun
-	 * des sites (i.e. quel fragment est hébergé sur quel site)
+	 * des sites (i.e. quel fragment est hï¿½bergï¿½ sur quel site)
 	 */
 	List<VariableTable> listeFragments;
 	List<Table> listeTables;
 
 	/**
-	 * Tableau des coûts de stockage
+	 * Tableau des coï¿½ts de stockage
 	 */
 	// float[] coutsStockage;
 	static HashMap<String, Float> coutsStockage;
 	/**
-	 * Matrice des coûts de communication
+	 * Matrice des coï¿½ts de communication
 	 */
 	// float[][] coutsComm;
 	static Matrice coutsComm ;
 
 	/**
-	 * Calcule le coût d'un plan de requêtes donné, à partir des coûts de
-	 * stockage et de communication prédéfinis.
+	 * Calcule le coï¿½t d'un plan de requï¿½tes donnï¿½, ï¿½ partir des coï¿½ts de
+	 * stockage et de communication prï¿½dï¿½finis.
 	 * 
 	 * @param qp
-	 *            Le plan de requête qu'on analyse
-	 * @return Le coût total du plan de requêtes.
+	 *            Le plan de requï¿½te qu'on analyse
+	 * @return Le coï¿½t total du plan de requï¿½tes.
 	 */
 	public static float getCost(QueryPlan qp) {
 		if(coutsStockage==null || coutsComm==null)
@@ -106,7 +106,7 @@ public class QueryOptimizer {
 	private static float calcCost(String site,  Relation r) {
 		float res =0;
 
-		//cas Résultat intermédiaire feuille : cout déjà calculé
+		//cas Rï¿½sultat intermï¿½diaire feuille : cout dï¿½jï¿½ calculï¿½
 		if(r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
 			VariableTable vt = (VariableTable)r;
 			if(!varInterCouts.containsKey(vt.getName())) {
@@ -117,7 +117,7 @@ public class QueryOptimizer {
 		} 
 		//cas Table : transfert des tuples
 		else if(/*r instanceof Table || */r instanceof VariableTable && BD.isATable((VariableTable) r)) {
-			//cout = nb tuples déplacés * cout de deplacement
+			//cout = nb tuples dï¿½placï¿½s * cout de deplacement
 			//			Table table = (r instanceof Table ? (Table) r : BD.tables.get(((VariableTable)r).getName()));
 			Table table = BD.getTable((VariableTable)r);
 			if(BD.isHostedOn(table)==null)
@@ -151,12 +151,12 @@ public class QueryOptimizer {
 		return res;
 	}
 	/**
-	 * Calcule le meilleur plan de requêtes distribué possible pour une requête,
-	 * en matière de coût
+	 * Calcule le meilleur plan de requï¿½tes distribuï¿½ possible pour une requï¿½te,
+	 * en matiï¿½re de coï¿½t
 	 * 
 	 * @param r
-	 *            L'arbre d'algèbre relationnelle de la requête
-	 * @return Le plan de requêtes optimisé
+	 *            L'arbre d'algï¿½bre relationnelle de la requï¿½te
+	 * @return Le plan de requï¿½tes optimisï¿½
 	 */
 	public QueryPlan optimizeQuery(Relation r) {
 		return null;
@@ -180,19 +180,19 @@ public class QueryOptimizer {
 		for (int i = 0; i < nbTables; i++) {
 			car = (char) ('A' + i);
 
-			// Création de la table
+			// Crï¿½ation de la table
 			Schema schema = new Schema();
 			// entre 1 et 5 attributs
 			nbAtt = 1 + (int) (Math.random() * 5);
 			for (int j = 0; j < nbAtt; j++) {
 				schema.add(new Attribute("" + car, "att" + j));
 			}
-			// on crée la table vide
+			// on crï¿½e la table vide
 			table = TableParser.parseFromCsv("" + car, "");
-			/* dû modifié la visibilité de setSchema */
+			/* dï¿½ modifiï¿½ la visibilitï¿½ de setSchema */
 			table.setSchema(schema);
 
-			// Création des fragments
+			// Crï¿½ation des fragments
 			// entre 1 et 4 fragments
 			nbfrag = 1 + (int) (Math.random() * 4);
 
