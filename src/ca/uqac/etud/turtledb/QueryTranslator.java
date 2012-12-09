@@ -43,16 +43,10 @@ public class QueryTranslator {
 	 * requête SQL syntaxiquement et sémantiquement correcte. Les feuilles de
 	 * cet arbre (qui correspondent aux fragments) sont des
 	 * {@link VariableTable}
-<<<<<<< HEAD
 	 * 
 	 * @param q
 	 *            La requête SQL
 	 * @return Un objet {@link Relation} si la requête est correcte, null sinon
-=======
-	 *
-	 * @param q La requ�te SQL
-	 * @return Un objet {@link Relation} si la requ�te est correcte, null sinon
->>>>>>> def8335368bd5d46759d21ae90194e547cea5dbb
 	 */
 	public static Relation translate(String q)
 	{
@@ -66,7 +60,7 @@ public class QueryTranslator {
 
 		// Construction de l'arbre
 		jointures();
-		selections();
+		selectionsOR();
 		projections();
 
 		return r;
