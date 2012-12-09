@@ -19,6 +19,7 @@ import java.io.*;
 
 import ca.uqac.dim.turtledb.*;
 import ca.uqac.dim.turtledb.util.*;
+import ca.uqac.etud.turtledb.BD;
 
 /**
  * Shows an example of basic relation processing with TurtleDB
@@ -62,6 +63,7 @@ public class SpaceDemo
 	    System.exit(1);
 	  }
 	  
+	  BD.affiche();
 	  // ---------------
 	  // Step 2: build query trees
 	  // ---------------
@@ -78,9 +80,9 @@ public class SpaceDemo
 	    sch_nameMission.add(new Attribute("Crew", "Mission"));
 	    Projection proj_nameMission = new Projection(sch_nameMission, j1);
 
-	    // We run the computation of the result by printing it
-	    System.out.println("Name of all missions' command pilot\n");
-	    System.out.println(proj_nameMission);
+//	    // We run the computation of the result by printing it
+//	    System.out.println("Name of all missions' command pilot\n");
+//	    System.out.println(proj_nameMission);
 	  }
 	  
 	  // Example 2: show name and height of all rockets flown by Virgil Grissom
@@ -99,9 +101,9 @@ public class SpaceDemo
         sch_rocket.add(new Attribute("Rocket", "Height"));
         Projection proj_rocket = new Projection(sch_rocket, j2);
         
-        // We run the computation of the result by printing it
-        System.out.println("Rockets flown by Virgil Grissom\n");
-        System.out.println(proj_rocket);
+//        // We run the computation of the result by printing it
+//        System.out.println("Rockets flown by Virgil Grissom\n");
+//        System.out.println(proj_rocket);
 	  }
 	}
 }
