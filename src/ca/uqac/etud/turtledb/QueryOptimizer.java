@@ -22,39 +22,25 @@ import ca.uqac.dim.turtledb.VariableTable;
 
 public class QueryOptimizer {
 
-	static HashMap<String, Float> varInterCouts;
-	static HashMap<String, Integer> varInterTuples;
 	/**
-	 * Les sites composant la base de donn�es r�partie
+	 * Tableau des coûts de stockage
 	 */
-	HashMap<String, Engine> listeSites;
+	private static HashMap<String, Float> coutsStockage;
+	/**
+	 * Matrice des coûts de communication
+	 */
+	private static Matrice coutsComm;
 
+	//éventuellement virer la mémorisation des couts des résultats intermédiaires
+	private static HashMap<String, Float> varInterCouts;
+	
 	/**
-	 * Le nom et la composition (i.e. expression d'alg�bre relationnelle) de
-	 * chacun des fragments + La solution d'allocation des fragments sur chacun
-	 * des sites (i.e. quel fragment est h�berg� sur quel site)
-	 */
-	List<VariableTable> listeFragments;
-	List<Table> listeTables;
-
-	/**
-	 * Tableau des co�ts de stockage
-	 */
-	// float[] coutsStockage;
-	static HashMap<String, Float> coutsStockage;
-	/**
-	 * Matrice des co�ts de communication
-	 */
-	// float[][] coutsComm;
-	static Matrice coutsComm;
-
-	/**
-	 * Calcule le co�t d'un plan de requ�tes donn�, � partir des co�ts de
-	 * stockage et de communication pr�d�finis.
+	 * Calcule le coût d'un plan de requêtes donné, à partir des coûts de
+	 * stockage et de communication prédéfinis.
 	 * 
 	 * @param qp
-	 *            Le plan de requ�te qu'on analyse
-	 * @return Le co�t total du plan de requ�tes.
+	 *            Le plan de requête qu'on analyse
+	 * @return Le coût total du plan de requêtes.
 	 */
 	public static float getCost(QueryPlan qp) {
 		if (coutsStockage == null || coutsComm == null)
@@ -83,16 +69,16 @@ public class QueryOptimizer {
 
 				res += calcCost(site, vt.getRelation());
 
-				if (vt.getSite()!=null && vt.getSite()!="") {
+				if (vt.getSite() != null && vt.getSite() != "") {
 					String siteTransfert = vt.getSite();
 					if (BD.sites.containsKey(siteTransfert)) {
 						float coutTransfert = cost(siteTransfert, site);
-						System.out.println(vt.getName() +" : " +vt.getRelation().nTuples +" tuples");
+						System.out.println(vt.getName() + " : "
+								+ vt.getRelation().nTuples + " tuples");
 						coutTransfert *= vt.getRelation().nTuples;
 						res += coutTransfert;
 					}
 				}
-
 				varInterCouts.put(((VariableTable) r).getName(), res);
 			} else
 				res = calcCost(site, r);
@@ -106,12 +92,14 @@ public class QueryOptimizer {
 
 		// cas R�sultat interm�diaire feuille : cout d�j� calcul�
 		if (r instanceof VariableTable && !BD.isATable((VariableTable) r)) {
-			VariableTable vt = (VariableTable) r;
-			if (!varInterCouts.containsKey(vt.getName())) {
-				return -3;
-			}
-			float cost = varInterCouts.get(vt.getName());
-//			vt.nTuples = cost;
+			// rien à faire, on a déjà integré le cout
+
+			// VariableTable vt = (VariableTable) r;
+			// if (!varInterCouts.containsKey(vt.getName())) {
+			// return -3;
+			// }
+			// float cost = varInterCouts.get(vt.getName());
+			// vt.nTuples = cost;
 			// res=cost;
 		}
 		// cas Table : transfert des tuples
@@ -134,15 +122,17 @@ public class QueryOptimizer {
 				}
 			}
 			r.nTuples = table.tupleCount();
-			System.out.println(table.getName()+" : "+r.nTuples+" tuples.");
+			System.out
+					.println(table.getName() + " : " + r.nTuples + " tuples.");
 			res = coutMin * r.nTuples;
 
 		} else if (r instanceof BinaryRelation) {
 			res = calcCost(site, ((BinaryRelation) r).getLeft());
 			res += calcCost(site, ((BinaryRelation) r).getRight());
-			
-			r.nTuples = Math.max(((BinaryRelation) r).getLeft().nTuples, ((BinaryRelation) r).getRight().nTuples);
-	
+
+			r.nTuples = Math.max(((BinaryRelation) r).getLeft().nTuples,
+					((BinaryRelation) r).getRight().nTuples);
+
 		} else if (r instanceof NAryRelation) {
 			for (Relation rel : ((NAryRelation) r).getRelations()) {
 				res += calcCost(site, rel);
@@ -157,12 +147,12 @@ public class QueryOptimizer {
 	}
 
 	/**
-	 * Calcule le meilleur plan de requ�tes distribu� possible pour une requ�te,
-	 * en mati�re de co�t
+	 * Calcule le meilleur plan de requêtes distribué possible pour une requête,
+	 * en matière de coût
 	 * 
 	 * @param r
-	 *            L'arbre d'alg�bre relationnelle de la requ�te
-	 * @return Le plan de requ�tes optimis�
+	 *            L'arbre d'algèbre relationnelle de la requête
+	 * @return Le plan de requêtes optimisé
 	 */
 	public QueryPlan optimizeQuery(Relation r) {
 		return null;
