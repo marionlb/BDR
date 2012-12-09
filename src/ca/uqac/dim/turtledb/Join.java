@@ -136,24 +136,11 @@ public class Join extends BinaryRelation implements Cloneable
 		}
 
 	}
-	///////////////////temporaire//////////////////////
 	@Override
 	public String toString() {
 		String left,right,cond="";
-		if(m_left instanceof Join) {
 			left = " ( "+m_left.toString()+" ) ";
-		} else if (m_left instanceof VariableTable) {
-			left = ((VariableTable)m_left).getName();
-		} else  {
-			left = " Indef ";
-		}
-		if(m_right instanceof Join) {
 			right = " ( "+m_right.toString()+" ) ";
-		} else if (m_right instanceof VariableTable) {
-			right = ((VariableTable)m_right).getName();
-		} else  {
-			right = " Indef ";
-		}
 		if(m_condition!=null) {
 			cond="["+m_condition.toString()+"]";
 		}

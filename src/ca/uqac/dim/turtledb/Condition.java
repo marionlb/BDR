@@ -39,4 +39,5 @@ public Object clone() {
 	    // on renvoie le clone
 	    return c;
 	}
+
 }

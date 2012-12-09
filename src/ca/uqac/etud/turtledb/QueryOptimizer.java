@@ -13,6 +13,7 @@ import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryPlan;
+import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Schema;
 import ca.uqac.dim.turtledb.Table;
@@ -154,8 +155,16 @@ public class QueryOptimizer {
 	 *            L'arbre d'algèbre relationnelle de la requête
 	 * @return Le plan de requêtes optimisé
 	 */
-	public QueryPlan optimizeQuery(Relation r) {
+	public static QueryPlan optimizeQuery(Relation r) {
 		return null;
+	}
+	public static Relation getOptimizeRelation(Relation r) throws VisitorException {
+		OptimizerQueryVisitor oqv = new OptimizerQueryVisitor();
+		r.accept(oqv);
+		CleanerQueryVisitor cqv = new CleanerQueryVisitor();
+		r.accept(cqv);
+		return r;
+		
 	}
 
 	static QueryOptimizer randomInit(int nbSites, int nbTables) {

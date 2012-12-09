@@ -4,6 +4,7 @@
  */
 package ca.uqac.etud.turtledb;
 
+import ca.uqac.dim.turtledb.Attribute;
 import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.ConditionVisitor;
 import ca.uqac.dim.turtledb.Equality;
@@ -44,13 +45,22 @@ public class AttributeVerificatorConditionVisitor extends ConditionVisitor
 	@Override
 	public void visit(Equality c)
 	{
-		for (String curTable : c.joinTables())
+		if (c.getLeft() instanceof Attribute)
 		{
-			if (curTable.equals(tableName))
+			Attribute a = (Attribute) c.getLeft();
+			if (a.getTableName().equals(tableName) )
 			{
-				
+				tableFound = true;
 			}
-		}
+		}	
+		if (c.getRight() instanceof Attribute)
+		{
+			Attribute a = (Attribute) c.getRight();
+			if (a.getTableName().equals(tableName) )
+			{
+				tableFound = true;
+			}
+		}	
 	}
 	
 }

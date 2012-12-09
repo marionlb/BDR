@@ -1,2 +1,2 @@
-SELECT EmployeeID, FirstName, LastName, HireDate, City FROM Employees
-WHERE City = 'London'
+SELECT Employees.EmployeeID, Employees.FirstName, Employees.LastName, Employees.HireDate, Employees.City FROM Employees
+WHERE Employees.City = 'London'
