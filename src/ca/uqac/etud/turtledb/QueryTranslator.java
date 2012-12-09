@@ -34,7 +34,8 @@ import java.util.Map.Entry;
 
 public class QueryTranslator
 {
-
+	static String query;
+	static Relation r;
 	static HashMap<String, VariableTable> tables;
 	// plus vraiment necessaire
 	// static HashMap<String, Attribute> attributs;
@@ -455,8 +456,4 @@ public class QueryTranslator
 			stream.close();
 		}
 	}
-	>>>>>>> cde01a8414498160b7a365bd07208aaaf8f158df
 }
-
-
-//~ Formatted by Jindent --- http://www.jindent.com

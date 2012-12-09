@@ -38,7 +38,12 @@ public class OptimizerQueryVisitor extends QueryVisitor
 	
 	for (Relation key : pos.keySet())
 	{
-		
+		if (key instanceof Projection)
+		{
+			Projection p = ((Projection) key);
+			
+			((Projection) key).getRelation();
+		}
 	}
 	
 	}
