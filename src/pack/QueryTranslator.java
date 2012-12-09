@@ -1,3 +1,5 @@
+package pack;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -286,7 +288,6 @@ public class QueryTranslator {
 	 * jointure ont déjà été utilisées.)
 	 */
 	private static void selections() {
-		// TODO Tester
 		Iterator<Condition> it = conditions.iterator();
 		Condition c;
 		Selection s;
@@ -303,15 +304,12 @@ public class QueryTranslator {
 	 * <code>attributs</code>, qui sert à la construction de la projection.
 	 */
 	private static void projections() {
-		// TODO Tester
+		//TODO Tester cas *
 
-		// String s="";
-		// for (Entry<String,Attribute> entry : attributs.entrySet()) {
-		// s+=entry.getKey();
-		// }
-		// Schema schema = new Schema(s);
-		Projection p = new Projection(schemaProj, r);
-		r = p;
+		if(!schemaProj.elementAt(0).equals(new Attribute("*"))) {
+			Projection p = new Projection(schemaProj, r);
+			r = p;
+		}
 	}
 
 	private static void init(String q) {
