@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -------------------------------------------------------------------------*/
 
-import pack.BD;
-import pack.QueryOptimizer;
+import ca.uqac.etud.turtledb.BD;
+import ca.uqac.etud.turtledb.QueryOptimizer;
 import ca.uqac.dim.turtledb.*;
 
 /**

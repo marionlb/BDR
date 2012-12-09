@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import org.w3c.dom.Document;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
-import pack.*;
+import ca.uqac.etud.turtledb.BD;
 /**
  * An engine does two things:
  * <ol>

@@ -19,7 +19,7 @@ package ca.uqac.dim.turtledb;
 
 import java.util.*;
 
-import pack.BD;
+import ca.uqac.etud.turtledb.BD;
 
 /**
  * A Table is a list of tuples. Since the leaves of a relational query
