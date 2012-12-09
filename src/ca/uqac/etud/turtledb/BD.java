@@ -12,22 +12,22 @@ import ca.uqac.dim.turtledb.VariableTable;
 public class BD {
 
 	/**
-	 * Liste des tables ({@link Table}), index�es par leur nom
+	 * Liste des tables ({@link Table}), indexées par leur nom
 	 */
 	static HashMap<String, Table> tables = new HashMap<String, Table>();
 	/**
-	 * Liste des sites ({@link Engine}, index�s par leur nom
+	 * Liste des sites ({@link Engine}, indexés par leur nom
 	 */
 	static HashMap<String, Engine> sites = new HashMap<String, Engine>();
 
 	/**
-	 * R�pertoire des fragments, class�s par Table
+	 * Répertoire des fragments, classés par Table
 	 */
 	// static HashMap<String, List<VariableTable>> fragmentsTables = new
 	// HashMap<String, List<VariableTable>>();
 
 	/**
-	 * R�pertoire des fragments, class�s par site
+	 * Répertoire des fragments, classés par site
 	 */
 	// static HashMap<String, List<VariableTable>> fragmentsSites = new
 	// HashMap<String, List<VariableTable>>();
@@ -165,26 +165,26 @@ public class BD {
 	}
 
 	public static Engine getSite(String siteName) {
-		if(sites.containsKey(siteName)) {
+		if (sites.containsKey(siteName)) {
 			return sites.get(siteName);
 		}
 		return null;
 	}
-	
+
 	public static Table getTable(String tableName) {
-		if(tables.containsKey(tableName))
+		if (tables.containsKey(tableName))
 			return tables.get(tableName);
 		return null;
 	}
-	
+
 	public static boolean isATable(VariableTable vt) {
-		if(vt==null)
+		if (vt == null)
 			return false;
 		return tables.containsKey(vt.getName());
 	}
-	
+
 	public static Table getTable(VariableTable vt) {
-		if(vt==null)
+		if (vt == null)
 			return null;
 		return tables.get(vt.getName());
 	}
