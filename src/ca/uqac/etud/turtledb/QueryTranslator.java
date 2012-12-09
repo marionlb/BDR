@@ -32,9 +32,6 @@ public class QueryTranslator {
 	private static String query;
 	private static Relation r;
 	private static HashMap<String, VariableTable> tables;
-
-	// plus vraiment necessaire
-	// static HashMap<String, Attribute> attributs;
 	private static ArrayList<Condition> conditions;
 	private static Schema schemaProj;
 
@@ -288,16 +285,9 @@ public class QueryTranslator {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Rajoute les selections à l'arbre de jointures. Utilise les conditions
 	 * restantes de l'attribut <code>conditions</code> (les conditions de
 	 * jointure ont déjà été utilisées.)
-=======
-	 * Rajoute les selections � l'arbre de jointures. Utilise les conditions
-	 * restantes de l'attribut
-	 * <code>conditions</code> (les conditions de jointure ont d�j� �t�
-	 * utilis�es.)
->>>>>>> def8335368bd5d46759d21ae90194e547cea5dbb
 	 */
 	private static void selections()
 	{
