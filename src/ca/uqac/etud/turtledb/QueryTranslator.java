@@ -1,5 +1,6 @@
 package ca.uqac.etud.turtledb;
 
+//~--- non-JDK imports --------------------------------------------------------
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class QueryTranslator {
 	private static String query;
 	private static Relation r;
 	private static HashMap<String, VariableTable> tables;
+
 	// plus vraiment necessaire
 	// static HashMap<String, Attribute> attributs;
 	private static ArrayList<Condition> conditions;
@@ -41,12 +43,19 @@ public class QueryTranslator {
 	 * requête SQL syntaxiquement et sémantiquement correcte. Les feuilles de
 	 * cet arbre (qui correspondent aux fragments) sont des
 	 * {@link VariableTable}
+<<<<<<< HEAD
 	 * 
 	 * @param q
 	 *            La requête SQL
 	 * @return Un objet {@link Relation} si la requête est correcte, null sinon
+=======
+	 *
+	 * @param q La requ�te SQL
+	 * @return Un objet {@link Relation} si la requ�te est correcte, null sinon
+>>>>>>> def8335368bd5d46759d21ae90194e547cea5dbb
 	 */
-	public static Relation translate(String q) {
+	public static Relation translate(String q)
+	{
 		// Initialisation des variables locales
 		init(q);
 
@@ -73,9 +82,11 @@ public class QueryTranslator {
 		int i_where = query.indexOf("WHERE");
 
 		String q2;
-		if (i_where != -1) {
+		if (i_where != -1)
+		{
 			q2 = query.substring(i_from + "FROM ".length(), i_where);
-		} else {
+		} else
+		{
 			q2 = query.substring(i_from + "FROM ".length(), query.length());
 		}
 		// On supprime les espaces pour plus de maniabilité
@@ -88,18 +99,18 @@ public class QueryTranslator {
 		// On crée un objet VariableTable pour toutes ces tables et on les
 		// stocke dans l'attribut tables (indexés par leur nom de table)
 		VariableTable tmp;
-		for (String table : t_tables) {
+		for (String table : t_tables)
+		{
 			tmp = new VariableTable(table);
 			tables.put(table, tmp);
 		}
 	}
 
 	/**
-	 * Remplit l'attribut <code>attributs</code> de la liste des attributs sur
-	 * lesquels projeter
+	 * Remplit l'attribut
+	 * <code>attributs</code> de la liste des attributs sur lesquels projeter
 	 */
-	private static void getAttributes() {
-		
+	private static void getAttributes() {		
 		// On ne travaille que sur le fragment de la requête compris entre
 		// SELECT et FROM
 		int i_from = query.indexOf("FROM");
@@ -111,8 +122,9 @@ public class QueryTranslator {
 	}
 
 	/**
-	 * Remplit l'attribut <code>conditions</code> de la liste des conditions de
-	 * jointure et de selection
+	 * Remplit l'attribut
+	 * <code>conditions</code> de la liste des conditions de jointure et de
+	 * selection
 	 */
 	private static void getConditions() {
 		// TODO : Gérer les paranthèses
@@ -122,7 +134,9 @@ public class QueryTranslator {
 		int i_where = query.indexOf("WHERE");
 
 		if (i_where == -1)
+		{
 			return;
+		}
 
 		String q3 = query.substring(i_where + "WHERE".length(), query.length());
 		// On supprime les espaces pour plus de maniabilité
@@ -136,7 +150,8 @@ public class QueryTranslator {
 		 * On itère sur la liste des conditions (On créera un ensemble de
 		 * conditions plutôt qu'une seule condition NAire)
 		 */
-		for (int i = 0; i < t_cond.length; i++) {
+		for (int i = 0; i < t_cond.length; i++)
+		{
 			// cas OR
 			tor = t_cond[i].split("OR");
 			Condition[] tor_c = new Condition[tor.length];
@@ -151,16 +166,20 @@ public class QueryTranslator {
 				 * chose que des floats/ints
 				 */
 				Literal l1 = null, l2 = null;
-				try {
+				try
+				{
 					Float.parseFloat(teg[0]);
 					l1 = new Value(teg[0]);
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException e)
+				{
 					l1 = new Attribute(teg[0]);
 				}
-				try {
+				try
+				{
 					Float.parseFloat(teg[1]);
 					l2 = new Value(teg[1]);
-				} catch (NumberFormatException e) {
+				} catch (NumberFormatException e)
+				{
 					l2 = new Attribute(teg[1]);
 				}
 				tor_c[j] = new Equality(l1, l2);
@@ -168,11 +187,14 @@ public class QueryTranslator {
 
 			// Cas où il n'y a pas de OU : une seule condition
 			if (tor.length == 1)
+			{
 				conditions.add(tor_c[0]);
-			else {
+			} else
+			{
 				// Cas du OU : on utilise LogicalOR
 				NAryCondition naire = new LogicalOr();
-				for (Condition condition : tor_c) {
+				for (Condition condition : tor_c)
+				{
 					naire.addCondition(condition);
 				}
 				conditions.add(naire);
@@ -204,7 +226,8 @@ public class QueryTranslator {
 		dejaJoin.add(first.getName());
 		r = first;
 
-		while (it.hasNext()) {
+		while (it.hasNext())
+		{
 			next = it.next().getValue();
 			// Il faut faire une jointure avec la prochaine table
 			// on cherche donc la condition de jointure
@@ -213,15 +236,18 @@ public class QueryTranslator {
 			Equality e;
 			VariableTable toJoin;
 			Join newJoin = null;
-			while (itc.hasNext()) {
+			while (itc.hasNext())
+			{
 				c = itc.next();
-				if (c instanceof Equality) {
+				if (c instanceof Equality)
+				{
 					e = (Equality) c;
 					String[] tab = e.joinTables();
 
 					// On a vérifie si la condition en cours est une condition
 					// de jointure
-					if (tab != null) {
+					if (tab != null)
+					{
 
 						// La condition de jointure concerne-t'elle les bonnes
 						// tables ?
@@ -268,22 +294,32 @@ public class QueryTranslator {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * Rajoute les selections à l'arbre de jointures. Utilise les conditions
 	 * restantes de l'attribut <code>conditions</code> (les conditions de
 	 * jointure ont déjà été utilisées.)
+=======
+	 * Rajoute les selections � l'arbre de jointures. Utilise les conditions
+	 * restantes de l'attribut
+	 * <code>conditions</code> (les conditions de jointure ont d�j� �t�
+	 * utilis�es.)
+>>>>>>> def8335368bd5d46759d21ae90194e547cea5dbb
 	 */
-	private static void selections() {
+	private static void selections()
+	{
 		Iterator<Condition> it = conditions.iterator();
 		Condition c;
 		Selection s;
-		while (it.hasNext()) {
+		while (it.hasNext())
+		{
 			c = it.next();
 			s = new Selection(c, r);
 			r = s;
 		}
 	}
 
-	private static void selectionsOR() {
+	private static void selectionsOR()
+	{
 		Iterator<Condition> it = conditions.iterator();
 		Condition c;
 		Selection s;
@@ -320,14 +356,16 @@ public class QueryTranslator {
 		}
 	}
 
-	private static void init(String q) {
+	private static void init(String q)
+	{
 		r = null;
 		query = q;
 		tables = new LinkedHashMap<String, VariableTable>();
 		conditions = new ArrayList<Condition>();
 	}
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception
+	{
 		String path = "data/Queries/";
 		ArrayList<String> liste = new ArrayList<String>();
 		String req = "SELECT A.truc ,    Bidule.bus,attr FROM A,B, Bidule WHERE A.chose=3";
@@ -335,7 +373,8 @@ public class QueryTranslator {
 
 		liste.add(req);
 		liste.add(query);
-		try {
+		try
+		{
 			liste.add(readFile(path + "q1.txt"));
 			liste.add(readFile(path + "q2.txt"));
 			liste.add(readFile(path + "q3.txt"));
@@ -345,7 +384,8 @@ public class QueryTranslator {
 			System.err.println("Problème de lecture de fichier.");
 		}
 
-		for (int i = 0; i < liste.size(); i++) {
+		for (int i = 0; i < liste.size(); i++)
+		{
 			// try {
 			// translate(liste.get(i));
 			init(liste.get(i));
@@ -378,16 +418,19 @@ public class QueryTranslator {
 
 	// Pris sur le net :
 	// http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file
-	private static String readFile(String path) throws IOException {
+	private static String readFile(String path) throws IOException
+	{
 		FileInputStream stream = new FileInputStream(new File(path));
-		try {
+		try
+		{
 			FileChannel fc = stream.getChannel();
 			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc
 					.size());
 			/* Instead of using default, pass in a decoder. */
 			return Charset.defaultCharset().decode(bb).toString().replace(
 					System.getProperty("line.separator"), "");
-		} finally {
+		} finally
+		{
 			stream.close();
 		}
 	}

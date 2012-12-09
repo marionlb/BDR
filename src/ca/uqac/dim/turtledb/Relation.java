@@ -99,7 +99,7 @@ public float cost;
     {
       Tuple t = i.next();
       //for (Attribute s : t.keySet())
-      for (Attribute s : sch)
+	  for(Attribute s : sch)
       {
     	Value v = t.get(s);
         out.append(v).append("\t");

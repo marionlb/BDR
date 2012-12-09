@@ -10,3 +10,4 @@
 .project
 .settings/*
 /nbproject/private/
+/build/
