@@ -20,6 +20,17 @@ package ca.uqac.dim.turtledb;
 public abstract class UnaryRelation extends Relation
 {
   protected Relation m_relation;
+  protected boolean toTrash = false;
+
+	public boolean isToTrash()
+	{
+		return toTrash;
+	}
+
+	public void setToTrash(boolean toTrash)
+	{
+		this.toTrash = toTrash;
+	}
   
   public void setRelation(Relation r)
   {

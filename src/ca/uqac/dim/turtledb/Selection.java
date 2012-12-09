@@ -27,7 +27,10 @@ public class Selection extends UnaryRelation
     m_condition = c;
     m_relation = r;
   }
-
+  public Condition getCondition()
+  {
+	  return m_condition; 
+  }
   @Override
   public Schema getSchema()
   {
