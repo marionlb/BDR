@@ -22,6 +22,16 @@ public class Equality extends Condition implements Cloneable
 	protected Literal m_left;
 	protected Literal m_right;
 
+	public Literal getLeft()
+	{
+		return m_left;
+	}
+
+	public Literal getRight()
+	{
+		return m_right;
+	}
+
 	public Equality(Literal l, Literal r)
 	{
 		m_left = l;

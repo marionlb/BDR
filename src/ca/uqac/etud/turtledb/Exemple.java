@@ -30,10 +30,10 @@ public class Exemple
 		liste.add(query);
 		try
 		{
-			liste.add(readFile(path + "q1.txt"));
-			liste.add(readFile(path + "q2.txt"));
-			liste.add(readFile(path + "q3.txt"));
-			liste.add(readFile(path + "q4.txt"));
+			//liste.add(readFile(path + "q1.txt"));
+			//liste.add(readFile(path + "q2.txt"));
+			//liste.add(readFile(path + "q3.txt"));
+			//liste.add(readFile(path + "q4.txt"));
 			liste.add(readFile(path + "q5.txt"));
 		} catch (IOException e) {
 			System.err.println("Problème de lecture de fichier.");
@@ -42,7 +42,12 @@ public class Exemple
 		for (int i = 0; i < liste.size(); i++)
 		{
 			Relation r = QueryTranslator.translate(liste.get(i));
+			System.out.println("----- Parsing --------");
 			System.out.println(r);
+			System.out.println("----- Optimization --------");
+			r = QueryOptimizer.getOptimizeRelation(r);
+			System.out.println(r);			
+			System.out.println("----- End --------");
 
 		}
 	}

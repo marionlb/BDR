@@ -47,6 +47,7 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 		{
 			VariableTable vt = (VariableTable) r;
 			AttributeVerificatorConditionVisitor avcv = new AttributeVerificatorConditionVisitor(vt.getName());
+			condition.accept(avcv);
 			return avcv.isTableFound();
 		}
 		return false;
