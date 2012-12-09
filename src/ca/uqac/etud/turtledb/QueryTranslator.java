@@ -302,6 +302,10 @@ public class QueryTranslator {
 		}
 	}
 
+	/**
+	 * Similaire à {@link selections()} mais transforme les sélections avec 
+	 * des conditions OR en union de selections sans OR. 
+	 */
 	private static void selectionsOR()
 	{
 		Iterator<Condition> it = conditions.iterator();
