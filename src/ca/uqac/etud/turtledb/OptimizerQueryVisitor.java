@@ -33,19 +33,91 @@ public class OptimizerQueryVisitor extends QueryVisitor
 	public void visit(Selection slctn) throws VisitorException
 	{
 		SelectionLocationFinderQueryVisitor sqv = new SelectionLocationFinderQueryVisitor(slctn.getCondition());
-	slctn.getRelation().accept(sqv);
-	Map<Relation, List<Relation>> pos = sqv.getSelectPos();		
-	
-	for (Relation key : pos.keySet())
-	{
-		if (key instanceof Projection)
+		slctn.getRelation().accept(sqv);
+		Map<Relation, List<Relation>> pos = sqv.getSelectPos();
+
+		if (!pos.isEmpty())
 		{
-			Projection p = ((Projection) key);
-			
-			((Projection) key).getRelation();
+			slctn.setToTrash(true);
+			for (Relation key : pos.keySet())
+			{
+				if (key instanceof Projection)
+				{
+					Projection p = ((Projection) key);
+					Relation tmp = p.getRelation();
+					p.setRelation(new Selection(slctn.getCondition(), tmp));
+
+				}
+				if (key instanceof Selection)
+				{
+					Selection p = ((Selection) key);
+					Relation tmp = p.getRelation();
+					p.setRelation(new Selection(slctn.getCondition(), tmp));
+				}
+				if (key instanceof Union)
+				{
+					Union u = ((Union) key);
+					List<Relation> concernedList = pos.get(key);
+					List<Relation> unionChildren = u.getRelations();
+					for (int i = 0; i < unionChildren.size(); i++)
+					{
+						if (concernedList.contains(unionChildren.get(i)))
+						{
+							Relation tmp = unionChildren.get(i);
+							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
+						}
+					}
+
+				}
+				if (key instanceof Intersection)
+				{
+					Intersection u = ((Intersection) key);
+					List<Relation> concernedList = pos.get(key);
+					List<Relation> unionChildren = u.getRelations();
+					for (int i = 0; i < unionChildren.size(); i++)
+					{
+						if (concernedList.contains(unionChildren.get(i)))
+						{
+							Relation tmp = unionChildren.get(i);
+							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
+						}
+					}
+
+				}
+				if (key instanceof Product)
+				{
+					Product u = ((Product) key);
+					List<Relation> concernedList = pos.get(key);
+					List<Relation> unionChildren = u.getRelations();
+					for (int i = 0; i < unionChildren.size(); i++)
+					{
+						if (concernedList.contains(unionChildren.get(i)))
+						{
+							Relation tmp = unionChildren.get(i);
+							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
+						}
+					}
+
+				}
+				if (key instanceof Join)
+				{
+					Join j = (Join) key;
+					List<Relation> concernedList = pos.get(key);
+
+					if (concernedList.contains(j.getLeft()))
+					{
+						j.setLeft(new Selection(slctn.getCondition(), j.getLeft()));
+
+					}
+					if (concernedList.contains(j.getRight()))
+					{
+						j.setRight(new Selection(slctn.getCondition(), j.getRight()));
+					}
+				}
+
+			}
 		}
-	}
-	
+
 	}
 
 	@Override
@@ -77,5 +149,4 @@ public class OptimizerQueryVisitor extends QueryVisitor
 	public void visit(Product prdct) throws VisitorException
 	{
 	}
-	
 }
