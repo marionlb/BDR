@@ -17,7 +17,6 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-import ca.uqac.etud.turtledb.MQueryVisitor;
 import java.util.*;
 
 /**

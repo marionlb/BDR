@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  -------------------------------------------------------------------------*/
-package ca.uqac.etud.turtledb;
+package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.*;
 

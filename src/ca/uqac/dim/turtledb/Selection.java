@@ -17,8 +17,6 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-import ca.uqac.etud.turtledb.MQueryVisitor;
-
 public class Selection extends UnaryRelation implements Cloneable
 {
 

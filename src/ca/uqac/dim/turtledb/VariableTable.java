@@ -17,8 +17,7 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-import ca.uqac.etud.turtledb.MQueryVisitor;
-import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
+import ca.uqac.dim.turtledb.MQueryVisitor.MVisitorException;
 
 /**
  * A VariableTable is a placeholder for an actual relation.

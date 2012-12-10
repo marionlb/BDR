@@ -20,8 +20,7 @@ package ca.uqac.dim.turtledb;
 import java.util.*;
 
 import ca.uqac.etud.turtledb.BD;
-import ca.uqac.etud.turtledb.MQueryVisitor;
-import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
+import ca.uqac.dim.turtledb.MQueryVisitor.MVisitorException;
 
 /**
  * A Table is a list of tuples. Since the leaves of a relational query

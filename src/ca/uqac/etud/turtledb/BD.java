@@ -78,6 +78,10 @@ public class BD {
 			hostTable(table, site);
 		}
 	}
+	public static List<Engine> getTableLocations(VariableTable vt)
+	{
+		return sitesTables.get(vt.getName());
+	}
 
 	public static String isHostedOn(Table table) {
 		if (!tables.containsKey(table.getName())) {

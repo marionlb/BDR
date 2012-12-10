@@ -18,8 +18,7 @@
 package ca.uqac.dim.turtledb;
 
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
-import ca.uqac.etud.turtledb.MQueryVisitor;
-import ca.uqac.etud.turtledb.MQueryVisitor.MVisitorException;
+import ca.uqac.dim.turtledb.MQueryVisitor.MVisitorException;
 import java.util.*;
 
 public class Projection extends UnaryRelation implements Cloneable
