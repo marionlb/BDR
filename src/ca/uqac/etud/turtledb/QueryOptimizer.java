@@ -10,7 +10,10 @@ import java.util.Map.Entry;
 import ca.uqac.dim.turtledb.Attribute;
 import ca.uqac.dim.turtledb.BinaryRelation;
 import ca.uqac.dim.turtledb.Engine;
+import ca.uqac.dim.turtledb.Intersection;
+import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.NAryRelation;
+import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryPlan;
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
@@ -127,20 +130,35 @@ public class QueryOptimizer {
 					.println(table.getName() + " : " + r.nTuples + " tuples.");
 			res = coutMin * r.nTuples;
 
-		} else if (r instanceof BinaryRelation) {
-			res = calcCost(site, ((BinaryRelation) r).getLeft());
-			res += calcCost(site, ((BinaryRelation) r).getRight());
+		} else if (r instanceof Join) {
+			Join j = (Join) r;
+			res = calcCost(site, j.getLeft());
+			res += calcCost(site, j.getRight());
 
-			r.nTuples = Math.max(((BinaryRelation) r).getLeft().nTuples,
-					((BinaryRelation) r).getRight().nTuples);
+			//cas Join
+			if(j.getCondition()!=null) {
+				r.nTuples = Math.max(j.getLeft().nTuples,j.getRight().nTuples);
+			}
+			//cas Produit Cartésien
+			else {
+				r.nTuples = j.getLeft().nTuples * j.getRight().nTuples;
+			}
 
 		} else if (r instanceof NAryRelation) {
+			
 			for (Relation rel : ((NAryRelation) r).getRelations()) {
 				res += calcCost(site, rel);
-				r.nTuples = Math.max(r.nTuples, rel.nTuples);
+				if(r instanceof Intersection) {
+					r.nTuples = Math.min(r.nTuples, rel.nTuples);
+				} else if(r instanceof Product) {
+					r.nTuples = r.nTuples * rel.nTuples;
+				} else /*if Union*/ {
+					r.nTuples = Math.max(r.nTuples, rel.nTuples);
+				}		
 			}
 		} else if (r instanceof UnaryRelation) {
 			res = calcCost(site, ((UnaryRelation) r).getRelation());
+			//même chose dans cas Sélection et Projection
 			r.nTuples = ((UnaryRelation) r).getRelation().nTuples;
 		}
 		r.cost = res;
@@ -165,53 +183,6 @@ public class QueryOptimizer {
 		r.accept(cqv);
 		return r;
 		
-	}
-
-	static QueryOptimizer randomInit(int nbSites, int nbTables) {
-		// init
-		List<String> lnomSites = new ArrayList<String>();
-		List<VariableTable> lfrag = new ArrayList<VariableTable>();
-		// init des sites
-		for (int i = 0; i < nbSites; i++) {
-			lnomSites.add("Site" + i);
-		}
-
-		// init des fragments
-		int nbfrag, site, nbAtt;
-		char car;
-		VariableTable fragment;
-		Table table;
-		for (int i = 0; i < nbTables; i++) {
-			car = (char) ('A' + i);
-
-			// Cr�ation de la table
-			Schema schema = new Schema();
-			// entre 1 et 5 attributs
-			nbAtt = 1 + (int) (Math.random() * 5);
-			for (int j = 0; j < nbAtt; j++) {
-				schema.add(new Attribute("" + car, "att" + j));
-			}
-			// on cr�e la table vide
-			table = TableParser.parseFromCsv("" + car, "");
-			/* d� modifi� la visibilit� de setSchema */
-			table.setSchema(schema);
-
-			// Cr�ation des fragments
-			// entre 1 et 4 fragments
-			nbfrag = 1 + (int) (Math.random() * 4);
-
-			for (int j = 0; j < nbfrag; j++) {
-				site = (int) (Math.random() * nbSites);
-				fragment = new VariableTable("" + car + j, lnomSites.get(site));
-				// la projection n'est pas exacte, mais c'est le principe qui
-				// compte :)
-				fragment.setRelation(new Projection(schema, table));
-				lfrag.add(fragment);
-			}
-		}
-
-		// return new QueryOptimizer(lnomSites, lfrag, cStock, cComm);
-		return null;
 	}
 
 	public static float cost(String siteDest, String s2) {

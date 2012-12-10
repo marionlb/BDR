@@ -21,6 +21,10 @@ import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 
 public class Join extends BinaryRelation implements Cloneable
 {
+	public Condition getCondition() {
+		return m_condition;
+	}
+
 	protected Product m_product;
 	protected Condition m_condition;
 
