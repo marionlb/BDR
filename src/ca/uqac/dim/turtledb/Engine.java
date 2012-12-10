@@ -54,7 +54,7 @@ public class Engine
    */
   protected String m_siteName;
   
-  //rajouté
+  //rajoutï¿½
   public String getName() {
 	return m_siteName;
 }
@@ -86,7 +86,10 @@ public class Engine
     	BD.hostTable((Table)r, this);
     }
   }
-  
+  public void putTable(Table t) {
+	  m_tables.put(t.getName(),t);
+	  BD.hostTable(t, this);
+  }
   /**
    * Add a query to process.
    * @param query The query

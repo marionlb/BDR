@@ -49,14 +49,14 @@ public class Table extends Relation implements Cloneable
 	{
 		super();
 		m_tuples = new ArrayList<Tuple>();
-		m_name = "";
-		BD.addTable(this);    
+		m_name = ""; 
 	}
 
 	public Table(String s)
 	{
 		this();
 		m_name = s;
+		BD.addTable(this);   
 	}
 
 	/**

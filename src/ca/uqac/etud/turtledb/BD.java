@@ -14,11 +14,11 @@ public class BD {
 	/**
 	 * Liste des tables ({@link Table}), indexées par leur nom
 	 */
-	static HashMap<String, Table> tables = new HashMap<String, Table>();
+	final static HashMap<String, Table> tables = new HashMap<String, Table>();
 	/**
 	 * Liste des sites ({@link Engine}, indexés par leur nom
 	 */
-	static HashMap<String, Engine> sites = new HashMap<String, Engine>();
+	final static HashMap<String, Engine> sites = new HashMap<String, Engine>();
 
 	/**
 	 * Répertoire des fragments, classés par Table
@@ -32,15 +32,19 @@ public class BD {
 	// static HashMap<String, List<VariableTable>> fragmentsSites = new
 	// HashMap<String, List<VariableTable>>();
 
-	static HashMap<String, List<Table>> tablesSites = new HashMap<String, List<Table>>();
-	static HashMap<String, List<Engine>> sitesTables = new HashMap<String, List<Engine>>();
+	final static HashMap<String, List<Table>> tablesSites = new HashMap<String, List<Table>>();
+	final static HashMap<String, List<Engine>> sitesTables = new HashMap<String, List<Engine>>();
 
 	public static void addSite(Engine e) {
 		sites.put(e.getName(), e);
 	}
 
 	public static void addTable(Table t) {
-		tables.put(t.getName(), t);
+		if(t.getName()==null || t.getName()=="") {
+			if(t.getSchema()!=null && t.getSchema().get(0)!=null && t.getSchema().get(0).getTableName()!="")
+			tables.put(t.getSchema().get(0).getTableName(), t);
+		} else
+			tables.put(t.getName(), t);
 	}
 
 	public static void hostTable(Table table, Engine site) {
@@ -88,8 +92,8 @@ public class BD {
 			System.err.println("Table inconnue : " + table.getName());
 		} else if (!sitesTables.containsKey(table.getName())) {
 			System.err
-					.println("La table est reconnue mais pas h�berg�e sur un site : "
-							+ table.getName());
+			.println("La table est reconnue mais pas h�berg�e sur un site : "
+					+ table.getName());
 		} else {
 			String res = "";
 			List<Engine> list = sitesTables.get(table.getName());
@@ -128,9 +132,10 @@ public class BD {
 		ps.append("\n============================================");
 		ps.append("\n===================TABLES===================");
 		ps.append("\n============================================\n");
-		for (Iterator<String> iterator = tables.keySet().iterator(); iterator
-				.hasNext();) {
-			String tableName = iterator.next();
+		//		for (Iterator<String> iterator = tables.keySet().iterator(); iterator
+		//				.hasNext();) {
+		//			String tableName = iterator.next();
+		for (String tableName : tables.keySet()) {
 			List<Engine> listeSites;
 			ps.append(tableName + "\n");
 			if (!sitesTables.containsKey(tableName)) {
@@ -148,7 +153,7 @@ public class BD {
 		ps.append("\n===================SITES===================");
 		ps.append("\n===========================================\n");
 		for (Iterator<String> iterator = sites.keySet().iterator(); iterator
-				.hasNext();) {
+		.hasNext();) {
 			String siteName = iterator.next();
 			List<Table> listeTables;
 			ps.append(siteName + "\n");
