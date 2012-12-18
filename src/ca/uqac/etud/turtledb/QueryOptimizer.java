@@ -139,13 +139,13 @@ public class QueryOptimizer {
 			res += calcCost(site, j.getRight());
 
 			//cas Join
-			if(j.getCondition()!=null) {
-				r.nTuples = Math.max(j.getLeft().nTuples,j.getRight().nTuples);
-			}
-			//cas Produit Cartésien
-			else {
+//			if(j.getCondition()!=null) {
+//				r.nTuples = Math.max(j.getLeft().nTuples,j.getRight().nTuples);
+//			}
+//			//cas Produit Cartésien
+//			else {
 				r.nTuples = j.getLeft().nTuples * j.getRight().nTuples;
-			}
+//			}
 
 		} else if (r instanceof NAryRelation) {
 			
