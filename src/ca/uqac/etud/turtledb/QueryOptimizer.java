@@ -12,6 +12,7 @@ import ca.uqac.dim.turtledb.BinaryRelation;
 import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
+import ca.uqac.dim.turtledb.MQueryVisitor.MVisitorException;
 import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
@@ -179,6 +180,15 @@ public class QueryOptimizer {
 		try
 		{
 			r = getOptimizeRelation(r);
+			QueryPlanConstMQueryVisitor qpc = new QueryPlanConstMQueryVisitor();
+			r.maccept(qpc);
+
+			return qpc.getQueryPlan();
+
+					
+		} catch (MVisitorException ex)
+		{
+			Logger.getLogger(QueryOptimizer.class.getName()).log(Level.SEVERE, null, ex);
 		} catch (VisitorException ex)
 		{
 			Logger.getLogger(QueryOptimizer.class.getName()).log(Level.SEVERE, null, ex);

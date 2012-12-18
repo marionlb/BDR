@@ -37,6 +37,12 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	private Relation growingRel;
 	Integer vTableCount = 0;
 
+	public QueryPlan getQueryPlan()
+	{
+		currentQP.put(currentEngine, growingRel);
+		return currentQP;
+	}
+	
 	@Override
 	public void visit(Projection r) throws MVisitorException
 	{
