@@ -35,6 +35,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	private QueryPlan currentQP;
 	private String currentEngine;
 	private Relation growingRel;
+	Integer vTableCount = 0;
 
 	@Override
 	public void visit(Projection r) throws MVisitorException
@@ -55,6 +56,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	{
 	}
 // TODO : finir l'intégration de growingrel
+
 	@Override
 	public void visit(VariableTable r) throws MVisitorException
 	{
@@ -80,172 +82,295 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 		}
 
 		currentCost = mincost;
-		currentQP = minqp;
 		currentEngine = minEngine;
+		growingRel = (Relation) r.clone();
 	}
 
 	@Override
 	public void visit(Union r) throws MVisitorException
 	{
-		float curcost = Float.MAX_VALUE;
-		float mincost = Float.MAX_VALUE;
-		QueryPlan curqp = new QueryPlan();
-		QueryPlan minqp = new QueryPlan();
+		float minCost = Float.MAX_VALUE;
+		QueryPlan minQP = new QueryPlan();
 		String minEngine = null;
-		Map<QueryPlan, Pair<Float, String>> costMap;
-		costMap = new HashMap<QueryPlan, Pair<Float, String>>();
+		Union minTree = null;
 
+		Map<Relation, Pair<Float, String>> costMap;
+		costMap = new HashMap<Relation, Pair<Float, String>>();
+
+		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		for (Relation c : r.getRelations())
 		{
 			c.maccept(this);
-			costMap.put(currentQP, new Pair(currentCost, currentEngine));
+			costMap.put(growingRel, new Pair(currentCost, currentEngine));
 		}
-		for (Map.Entry<QueryPlan, Pair<Float, String>> e : costMap.entrySet())
+		
+		// Recherche d
+		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
 		{
-			curqp.putAll(e.getKey());
-		}
+			QueryPlan curQP = new QueryPlan();
+			String curEngine = e.getValue().getSecond();
+			Union candidateTree = new Union();
 
-		QueryPlan uqp;
-		for (String site : BD.sites.keySet())
-		{
-			uqp = new QueryPlan();
-			uqp.putAll(curqp);
-			uqp.put(site, r);
-			curcost = QueryOptimizer.getCost(uqp);
-
-			if (curcost < mincost)
+			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
 			{
-				minEngine = site;
-				mincost = curcost;
-				minqp = uqp;
+				// On parcours toute l'entryMap sauf e
+				if (e != f)
+				{
+					/*
+					 * Si la relation f est exécuté sur le même si que e,
+					 * on l'ajoute directement à l'arbre
+					 */
+					if (f.getValue().getSecond().equals(curEngine))
+					{
+						candidateTree.addOperand(f.getKey());
+					} /*
+					 * Sinon, on crée un sous arbre avec comme racine une VariableTable,
+					 * qui pour relation f et on l'ajout et QueryPlan courant.
+					 * Dans l'arbre de l'Union, on remplace la branche f par la VariableTable
+					 */ else
+					{
+						vTableCount++;
+						VariableTable v = new VariableTable(
+								vTableCount.toString(),
+								f.getValue().getSecond());
+
+						v.setRelation(f.getKey());
+						curQP.put(f.getValue().getSecond(), v);
+						candidateTree.addOperand(v);
+					}
+				}
+			}
+			Float curCost = QueryOptimizer.getCost(curQP);
+
+			if (curCost < minCost)
+			{
+				minCost = curCost;
+				minQP = curQP;
+				minEngine = curEngine;
+				minTree = candidateTree;
 			}
 		}
-		currentCost = mincost;
-		currentQP = minqp;
+		
+		currentCost = minCost;
 		currentEngine = minEngine;
-
+		currentQP.putAll(minQP);
+		growingRel = minTree;
 	}
-
+/*
+ * L'utilisation de generics pour éviter la duplication du code est impossible.
+ * En effet, la JVM ne permet pas d'instantier un type générique...
+ */
 	@Override
 	public void visit(Intersection r) throws MVisitorException
 	{
-		float curcost = Float.MAX_VALUE;
-		float mincost = Float.MAX_VALUE;
-		QueryPlan curqp = new QueryPlan();
-		QueryPlan minqp = new QueryPlan();
+		float minCost = Float.MAX_VALUE;
+		QueryPlan minQP = new QueryPlan();
 		String minEngine = null;
-		Map<QueryPlan, Pair<Float, String>> costMap;
-		costMap = new HashMap<QueryPlan, Pair<Float, String>>();
+		Intersection minTree = null;
 
+		Map<Relation, Pair<Float, String>> costMap;
+		costMap = new HashMap<Relation, Pair<Float, String>>();
+
+		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		for (Relation c : r.getRelations())
 		{
 			c.maccept(this);
-			costMap.put(currentQP, new Pair(currentCost, currentEngine));
+			costMap.put(growingRel, new Pair(currentCost, currentEngine));
 		}
-		for (Map.Entry<QueryPlan, Pair<Float, String>> e : costMap.entrySet())
+		
+		// Recherche d
+		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
 		{
-			curqp.putAll(e.getKey());
-		}
+			QueryPlan curQP = new QueryPlan();
+			String curEngine = e.getValue().getSecond();
+			Intersection candidateTree = new Intersection();
 
-		QueryPlan uqp;
-		for (String site : BD.sites.keySet())
-		{
-			uqp = new QueryPlan();
-			uqp.putAll(curqp);
-			uqp.put(site, r);
-			curcost = QueryOptimizer.getCost(uqp);
-
-			if (curcost < mincost)
+			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
 			{
-				minEngine = site;
-				mincost = curcost;
-				minqp = uqp;
+				// On parcours toute l'entryMap sauf e
+				if (e != f)
+				{
+					/*
+					 * Si la relation f est exécuté sur le même si que e,
+					 * on l'ajoute directement à l'arbre
+					 */
+					if (f.getValue().getSecond().equals(curEngine))
+					{
+						candidateTree.addOperand(f.getKey());
+					} /*
+					 * Sinon, on crée un sous arbre avec comme racine une VariableTable,
+					 * qui pour relation f et on l'ajout et QueryPlan courant.
+					 * Dans l'arbre de l'Union, on remplace la branche f par la VariableTable
+					 */ else
+					{
+						vTableCount++;
+						VariableTable v = new VariableTable(
+								vTableCount.toString(),
+								f.getValue().getSecond());
+
+						v.setRelation(f.getKey());
+						curQP.put(f.getValue().getSecond(), v);
+						candidateTree.addOperand(v);
+					}
+				}
+			}
+			Float curCost = QueryOptimizer.getCost(curQP);
+
+			if (curCost < minCost)
+			{
+				minCost = curCost;
+				minQP = curQP;
+				minEngine = curEngine;
+				minTree = candidateTree;
 			}
 		}
-		currentCost = mincost;
-		currentQP = minqp;
+		
+		currentCost = minCost;
 		currentEngine = minEngine;
+		currentQP.putAll(minQP);
+		growingRel = minTree;
 	}
 
 	@Override
 	public void visit(Join r) throws MVisitorException
 	{
-		float curcost = Float.MAX_VALUE;
-		float mincost = Float.MAX_VALUE;
-		QueryPlan curqp = new QueryPlan();
-		QueryPlan minqp = new QueryPlan();
+
+		float minCost = Float.MAX_VALUE;
+		QueryPlan minQP = new QueryPlan();
 		String minEngine = null;
-		Map<QueryPlan, Pair<Float, String>> costMap;
-		costMap = new HashMap<QueryPlan, Pair<Float, String>>();
+		Intersection minTree = null;
 
+		Map<Relation, Pair<Float, String>> costMap;
+		costMap = new HashMap<Relation, Pair<Float, String>>();
+
+		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		r.getLeft().maccept(this);
-			costMap.put(currentQP, new Pair(currentCost, currentEngine));
+		costMap.put(growingRel, new Pair(currentCost, currentEngine));
 		r.getRight().maccept(this);
-			costMap.put(currentQP, new Pair(currentCost, currentEngine));
-
-		for (Map.Entry<QueryPlan, Pair<Float, String>> e : costMap.entrySet())
+		costMap.put(growingRel, new Pair(currentCost, currentEngine));
+		
+		// Recherche d
+		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
 		{
-			curqp.putAll(e.getKey());
-		}
+			QueryPlan curQP = new QueryPlan();
+			String curEngine = e.getValue().getSecond();
+			Intersection candidateTree = new Intersection();
 
-		QueryPlan uqp;
-		for (String site : BD.sites.keySet())
-		{
-			uqp = new QueryPlan();
-			uqp.putAll(curqp);
-			uqp.put(site, r);
-			curcost = QueryOptimizer.getCost(uqp);
-
-			if (curcost < mincost)
+			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
 			{
-				minEngine = site;
-				mincost = curcost;
-				minqp = uqp;
+				// On parcours toute l'entryMap sauf e
+				if (e != f)
+				{
+					/*
+					 * Si la relation f est exécuté sur le même si que e,
+					 * on l'ajoute directement à l'arbre
+					 */
+					if (f.getValue().getSecond().equals(curEngine))
+					{
+						candidateTree.addOperand(f.getKey());
+					} /*
+					 * Sinon, on crée un sous arbre avec comme racine une VariableTable,
+					 * qui pour relation f et on l'ajout et QueryPlan courant.
+					 * Dans l'arbre de l'Union, on remplace la branche f par la VariableTable
+					 */ else
+					{
+						vTableCount++;
+						VariableTable v = new VariableTable(
+								vTableCount.toString(),
+								f.getValue().getSecond());
+
+						v.setRelation(f.getKey());
+						curQP.put(f.getValue().getSecond(), v);
+						candidateTree.addOperand(v);
+					}
+				}
+			}
+			Float curCost = QueryOptimizer.getCost(curQP);
+
+			if (curCost < minCost)
+			{
+				minCost = curCost;
+				minQP = curQP;
+				minEngine = curEngine;
+				minTree = candidateTree;
 			}
 		}
-		currentCost = mincost;
-		currentQP = minqp;
+		
+		currentCost = minCost;
 		currentEngine = minEngine;
+		currentQP.putAll(minQP);
+		growingRel = minTree;
 	}
 
 	@Override
 	public void visit(Product r) throws MVisitorException
 	{
-		float curcost = Float.MAX_VALUE;
-		float mincost = Float.MAX_VALUE;
-		QueryPlan curqp = new QueryPlan();
-		QueryPlan minqp = new QueryPlan();
+		float minCost = Float.MAX_VALUE;
+		QueryPlan minQP = new QueryPlan();
 		String minEngine = null;
-		Map<QueryPlan, Pair<Float, String>> costMap;
-		costMap = new HashMap<QueryPlan, Pair<Float, String>>();
+		Product minTree = null;
 
+		Map<Relation, Pair<Float, String>> costMap;
+		costMap = new HashMap<Relation, Pair<Float, String>>();
+
+		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		for (Relation c : r.getRelations())
 		{
 			c.maccept(this);
-			costMap.put(currentQP, new Pair(currentCost, currentEngine));
+			costMap.put(growingRel, new Pair(currentCost, currentEngine));
 		}
-		for (Map.Entry<QueryPlan, Pair<Float, String>> e : costMap.entrySet())
+		
+		// Recherche d
+		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
 		{
-			curqp.putAll(e.getKey());
-		}
+			QueryPlan curQP = new QueryPlan();
+			String curEngine = e.getValue().getSecond();
+			Product candidateTree = new Product();
 
-		QueryPlan uqp;
-		for (String site : BD.sites.keySet())
-		{
-			uqp = new QueryPlan();
-			uqp.putAll(curqp);
-			uqp.put(site, r);
-			curcost = QueryOptimizer.getCost(uqp);
-
-			if (curcost < mincost)
+			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
 			{
-				minEngine = site;
-				mincost = curcost;
-				minqp = uqp;
+				// On parcours toute l'entryMap sauf e
+				if (e != f)
+				{
+					/*
+					 * Si la relation f est exécuté sur le même si que e,
+					 * on l'ajoute directement à l'arbre
+					 */
+					if (f.getValue().getSecond().equals(curEngine))
+					{
+						candidateTree.addOperand(f.getKey());
+					} /*
+					 * Sinon, on crée un sous arbre avec comme racine une VariableTable,
+					 * qui pour relation f et on l'ajout et QueryPlan courant.
+					 * Dans l'arbre de l'Union, on remplace la branche f par la VariableTable
+					 */ else
+					{
+						vTableCount++;
+						VariableTable v = new VariableTable(
+								vTableCount.toString(),
+								f.getValue().getSecond());
+
+						v.setRelation(f.getKey());
+						curQP.put(f.getValue().getSecond(), v);
+						candidateTree.addOperand(v);
+					}
+				}
+			}
+			Float curCost = QueryOptimizer.getCost(curQP);
+
+			if (curCost < minCost)
+			{
+				minCost = curCost;
+				minQP = curQP;
+				minEngine = curEngine;
+				minTree = candidateTree;
 			}
 		}
-		currentCost = mincost;
-		currentQP = minqp;
+		
+		currentCost = minCost;
 		currentEngine = minEngine;
+		currentQP.putAll(minQP);
+		growingRel = minTree;
+		
 	}
 }
