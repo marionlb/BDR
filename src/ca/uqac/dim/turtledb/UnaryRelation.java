@@ -81,15 +81,15 @@ public abstract class UnaryRelation extends Relation implements Cloneable
 	  String res="", sep="", cond="";
 	  if(this instanceof Projection) {
 		  sep = "Proj";
-		  cond = ((Projection)this).m_schema.toString();
+		  cond = ((Projection)this).m_schema.toString() +" ";
 	  } else if (this instanceof Selection) {
 		  sep = "Sel";
-		  cond = ((Selection)this).m_condition.toString();
+		  cond = "[ "+ ((Selection)this).m_condition.toString()+ " ]";
 	  } else {
 		  sep = "Z";
 	  }
 	 
-	  res = sep +"[ "+ cond + " ]"+ "("+ m_relation + ")";
+	  res = sep + cond + "("+ m_relation + ") ";
 	  return res;
   }
   

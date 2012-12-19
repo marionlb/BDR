@@ -101,7 +101,7 @@ public class VariableTable extends UnaryRelation
   public String toString()
   {
     if (m_relation == null)
-      return "?" + m_name;
+      return /*"?" + */m_name;
     return m_relation.toString();
   }
   
