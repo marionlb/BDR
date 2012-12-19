@@ -3,29 +3,23 @@ package ca.uqac.etud.turtledb;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import ca.uqac.dim.turtledb.Attribute;
-import ca.uqac.dim.turtledb.BinaryRelation;
 import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.MQueryVisitor.MVisitorException;
 import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
-import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryPlan;
 import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
-import ca.uqac.dim.turtledb.Schema;
 import ca.uqac.dim.turtledb.Table;
-import ca.uqac.dim.turtledb.TableParser;
 import ca.uqac.dim.turtledb.UnaryRelation;
 import ca.uqac.dim.turtledb.VariableTable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class QueryOptimizer {
 
@@ -40,7 +34,7 @@ public class QueryOptimizer {
 
 	//éventuellement virer la mémorisation des couts des résultats intermédiaires
 	private static HashMap<String, Float> varInterCouts;
-	
+
 	/**
 	 * Calcule le coût d'un plan de requêtes donné, à partir des coûts de
 	 * stockage et de communication prédéfinis.
@@ -57,8 +51,11 @@ public class QueryOptimizer {
 
 		float res = 0;
 		varInterCouts = new HashMap<String, Float>();
+		ArrayList<Float> listeCouts = new ArrayList<Float>();
 		for (Entry<String, Set<Relation>> entry : qp.entrySet()) {
-			res += cost(entry.getKey(), entry.getValue());
+			float tmp= cost(entry.getKey(), entry.getValue());
+			res+=tmp;
+			listeCouts.add(tmp);
 		}
 		return res;
 	}
@@ -80,8 +77,8 @@ public class QueryOptimizer {
 					String siteTransfert = vt.getSite();
 					if (BD.sites.containsKey(siteTransfert)) {
 						float coutTransfert = cost(siteTransfert, site);
-						System.out.println(vt.getName() + " : "
-								+ vt.getRelation().nTuples + " tuples");
+						//						System.out.println(vt.getName() + " : "
+						//								+ vt.getRelation().nTuples + " tuples");
 						coutTransfert *= vt.getRelation().nTuples;
 						res += coutTransfert;
 					}
@@ -89,8 +86,11 @@ public class QueryOptimizer {
 				varInterCouts.put(((VariableTable) r).getName(), res);
 			} else
 				res = calcCost(site, r);
+			if(res<0)
+				System.out.println(BD.isATable((VariableTable) r));;
 		}
-		System.out.println(site + " : " + res);
+		//		System.out.println(site + " : " + res);
+
 		return res;
 	}
 
@@ -129,8 +129,8 @@ public class QueryOptimizer {
 				}
 			}
 			r.nTuples = table.tupleCount();
-			System.out
-					.println(table.getName() + " : " + r.nTuples + " tuples.");
+			//			System.out
+			//					.println(table.getName() + " : " + r.nTuples + " tuples.");
 			res = coutMin * r.nTuples;
 
 		} else if (r instanceof Join) {
@@ -139,16 +139,16 @@ public class QueryOptimizer {
 			res += calcCost(site, j.getRight());
 
 			//cas Join
-//			if(j.getCondition()!=null) {
-//				r.nTuples = Math.max(j.getLeft().nTuples,j.getRight().nTuples);
-//			}
-//			//cas Produit Cartésien
-//			else {
-				r.nTuples = j.getLeft().nTuples * j.getRight().nTuples;
-//			}
+			//			if(j.getCondition()!=null) {
+			//				r.nTuples = Math.max(j.getLeft().nTuples,j.getRight().nTuples);
+			//			}
+			//			//cas Produit Cartésien
+			//			else {
+			r.nTuples = j.getLeft().nTuples * j.getRight().nTuples;
+			//			}
 
 		} else if (r instanceof NAryRelation) {
-			
+
 			for (Relation rel : ((NAryRelation) r).getRelations()) {
 				res += calcCost(site, rel);
 				if(r instanceof Intersection) {
@@ -184,7 +184,7 @@ public class QueryOptimizer {
 			r.maccept(qpc);
 
 			return qpc.getQueryPlan();
-					
+
 		} catch (MVisitorException ex)
 		{
 			Logger.getLogger(QueryOptimizer.class.getName()).log(Level.SEVERE, null, ex);
@@ -192,10 +192,10 @@ public class QueryOptimizer {
 		{
 			Logger.getLogger(QueryOptimizer.class.getName()).log(Level.SEVERE, null, ex);
 		}
-		
-		
+
+
 		return null;
-		
+
 	}
 	public static Relation getOptimizeRelation(Relation r) throws VisitorException {
 		OptimizerQueryVisitor oqv = new OptimizerQueryVisitor();
@@ -203,11 +203,21 @@ public class QueryOptimizer {
 		CleanerQueryVisitor cqv = new CleanerQueryVisitor();
 		r.accept(cqv);
 		return r;
-		
+
 	}
 
 	public static float cost(String siteDest, String s2) {
-		return coutsStockage.get(siteDest) + coutsComm.get(siteDest, s2);
+		float res=0;
+		if(siteDest.equals(s2))
+			;
+		else if(!coutsStockage.containsKey(siteDest))
+			;
+		else if(coutsComm.get(siteDest, s2)<0)
+			;
+		else 
+			res = coutsStockage.get(siteDest) + coutsComm.get(siteDest, s2);
+		assert res>=0;
+		return res;
 	}
 
 	public static void addDefaultCost(String site1) {

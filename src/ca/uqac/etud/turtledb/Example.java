@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.QueryPlan;
@@ -11,8 +13,6 @@ import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.XmlQueryParser;
 import ca.uqac.dim.turtledb.util.FileReadWrite;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Example {
 
@@ -22,10 +22,10 @@ public class Example {
 	public static void main(String[] args) {
 		importer();
 		BD.affiche();	
-
 	}
 
 	public static void importer() {
+
 		//TABLES !
 		Relation r_Astronaut = null, r_Mission = null, r_Crew = null, r_Rocket = null;
 		try {
@@ -37,6 +37,7 @@ public class Example {
 					.getFileContents("data/Space/Crew.xml"));
 			r_Rocket = XmlQueryParser.parse(FileReadWrite
 					.getFileContents("data/Space/Rocket.xml"));
+			
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found");
 			System.exit(1);
@@ -52,7 +53,7 @@ public class Example {
 			System.err.println("Error reading Space database");
 			System.exit(1);
 		}
-
+		
 		//SITES !
 		Engine site_1 = new Engine("Site 1");
 		Engine site_2 = new Engine("Site 2");
@@ -98,6 +99,7 @@ public class Example {
 			QueryPlan p = QueryOptimizer.optimizeQuery(r);
 			System.out.println(p);
 			System.out.println("----- End --------");
+			System.out.println("cout : "+QueryOptimizer.getCost(p));
 
 		}
 
