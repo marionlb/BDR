@@ -6,9 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ca.uqac.dim.turtledb.Engine;
+import ca.uqac.dim.turtledb.QueryPlan;
+import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.XmlQueryParser;
 import ca.uqac.dim.turtledb.util.FileReadWrite;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Example {
 
@@ -72,6 +76,32 @@ public class Example {
 		} catch (IOException e) {
 			System.err.println("Problème de lecture des requêtes.");
 		}
+
+		
+		for (int i = 0; i < queries.size(); i++)
+		//int i = 1;
+		{
+			Relation r = QueryTranslator.translate(queries.get(i));
+			System.out.println("----- Parsing --------");
+			System.out.println(r);
+			System.out.println("----- Optimization --------");
+			try
+			{
+				r = QueryOptimizer.getOptimizeRelation(r);
+			} catch (VisitorException ex)
+			{
+				Logger.getLogger(Example.class.getName()).log(Level.SEVERE, null, ex);
+			}
+			
+			System.out.println(r);
+			System.out.println("----- QueryPlan --------");
+			QueryPlan p = QueryOptimizer.optimizeQuery(r);
+			System.out.println(p);
+			System.out.println("----- End --------");
+
+		}
+
+		
 
 	}
 

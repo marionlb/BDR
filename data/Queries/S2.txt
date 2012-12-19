@@ -1,4 +1,4 @@
-SELECT Astronaut.Name, Role.Name
+SELECT Astronaut.Name
 FROM Astronaut, Crew
 WHERE Astronaut.Name=Crew.Astronaut
 AND Astronaut.Nationality=France OR Astronaut.Nationality=USA

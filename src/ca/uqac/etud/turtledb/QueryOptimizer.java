@@ -184,7 +184,6 @@ public class QueryOptimizer {
 			r.maccept(qpc);
 
 			return qpc.getQueryPlan();
-
 					
 		} catch (MVisitorException ex)
 		{

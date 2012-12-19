@@ -34,7 +34,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 {
 
 	private float currentCost;
-	private QueryPlan currentQP;
+	private QueryPlan currentQP = new QueryPlan();
 	private String currentEngine;
 	private Relation growingRel;
 	Integer vTableCount = 0;
@@ -117,68 +117,60 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 		float minCost = Float.MAX_VALUE;
 		QueryPlan minQP = new QueryPlan();
 		String minEngine = null;
-		Intersection minTree = null;
+		Join minTree = null;
 
 		Map<Relation, Pair<Float, String>> costMap;
 		costMap = new HashMap<Relation, Pair<Float, String>>();
 
+		//TODO: Corriger Join
 		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		r.getLeft().maccept(this);
-		costMap.put(growingRel, new Pair(currentCost, currentEngine));
+		Relation lGrow = growingRel;
+		float lCost = currentCost;
+		String lEngine = currentEngine;
 		r.getRight().maccept(this);
-		costMap.put(growingRel, new Pair(currentCost, currentEngine));
 
-		// Recherche d
-		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
+		if (lEngine.equals(currentEngine))
 		{
-			QueryPlan curQP = new QueryPlan();
-			String curEngine = e.getValue().getSecond();
-			Intersection candidateTree = new Intersection();
-
-			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
+			Join j = new Join(r.getCondition());
+			j.setLeft(lGrow);
+			j.setRight(growingRel);
+			growingRel = j;
+		} else
+		{
+			if (lCost >= currentCost)
 			{
-				// On parcours toute l'entryMap sauf e
-				if (e != f)
-				{
-					/*
-					 * Si la relation f est exécuté sur le même si que e,
-					 * on l'ajoute directement à l'arbre
-					 */
-					if (f.getValue().getSecond().equals(curEngine))
-					{
-						candidateTree.addOperand(f.getKey());
-					} /*
-					 * Sinon, on crée un sous arbre avec comme racine une VariableTable,
-					 * qui pour relation f et on l'ajout et QueryPlan courant.
-					 * Dans l'arbre de l'Union, on remplace la branche f par la VariableTable
-					 */ else
-					{
-						vTableCount++;
-						VariableTable v = new VariableTable(
-								vTableCount.toString(),
-								f.getValue().getSecond());
+				vTableCount++;
+				VariableTable v = new VariableTable(
+						vTableCount.toString(), currentEngine);
 
-						v.setRelation(f.getKey());
-						curQP.put(f.getValue().getSecond(), v);
-						candidateTree.addOperand(v);
-					}
-				}
+				v.setRelation(growingRel);
+				Join j = new Join(r.getCondition());
+
+				j.setLeft(lGrow);
+				j.setRight(v);
+				currentQP.put(currentEngine, v);
+				currentEngine = lEngine;
+				growingRel = j;
+				
 			}
-			Float curCost = QueryOptimizer.getCost(curQP);
-
-			if (curCost < minCost)
+			else
 			{
-				minCost = curCost;
-				minQP = curQP;
-				minEngine = curEngine;
-				minTree = candidateTree;
+				vTableCount++;
+				VariableTable v = new VariableTable(
+						vTableCount.toString(), lEngine);
+
+				v.setRelation(lGrow);
+				Join j = new Join(r.getCondition());
+
+				j.setLeft(v);
+				j.setRight(growingRel);
+				currentQP.put(lEngine, v);
+				growingRel = j;
 			}
+
 		}
-
-		currentCost = minCost;
-		currentEngine = minEngine;
-		currentQP.putAll(minQP);
-		growingRel = minTree;
+		currentCost = QueryOptimizer.getCost(currentQP);
 	}
 
 	@Override
@@ -204,12 +196,14 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 			costMap.put(growingRel, new Pair(currentCost, currentEngine));
 		}
 
-		// Recherche d
+		// Recherche du site sur lequel l'union aura un coût minimum
 		for (Map.Entry<Relation, Pair<Float, String>> e : costMap.entrySet())
 		{
-			QueryPlan curQP = new QueryPlan();
+			QueryPlan curQP = new QueryPlan(currentQP);
 			String curEngine = e.getValue().getSecond();
 			T candidateTree = (T) empty.clone();
+
+			candidateTree.addOperand(e.getKey());
 
 			for (Map.Entry<Relation, Pair<Float, String>> f : costMap.entrySet())
 			{
@@ -253,7 +247,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 
 		currentCost = minCost;
 		currentEngine = minEngine;
-		currentQP.putAll(minQP);
+		currentQP = minQP;
 		growingRel = minTree;
 	}
 }
