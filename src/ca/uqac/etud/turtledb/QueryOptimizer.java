@@ -94,7 +94,7 @@ public class QueryOptimizer {
 		return res;
 	}
 
-	private static float calcCost(String site, Relation r) {
+	static float calcCost(String site, Relation r) {
 		float res = 0;
 
 		// cas R�sultat interm�diaire feuille : cout d�j� calcul�

@@ -17,8 +17,6 @@
  -------------------------------------------------------------------------*/
 package ca.uqac.dim.turtledb;
 
-import ca.uqac.dim.turtledb.*;
-
 public abstract class MQueryVisitor
 {
   public abstract void visit(Projection r) throws MVisitorException;
