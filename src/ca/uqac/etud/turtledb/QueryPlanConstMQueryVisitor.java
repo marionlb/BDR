@@ -142,7 +142,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 			{
 				vTableCount++;
 				VariableTable v = new VariableTable(
-						vTableCount.toString(), currentEngine);
+						vTableCount.toString(), lEngine);
 
 				v.setRelation(growingRel);
 				Join j = new Join(r.getCondition());
@@ -158,7 +158,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 			{
 				vTableCount++;
 				VariableTable v = new VariableTable(
-						vTableCount.toString(), lEngine);
+						vTableCount.toString(), currentEngine);
 
 				v.setRelation(lGrow);
 				Join j = new Join(r.getCondition());
@@ -226,7 +226,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 						vTableCount++;
 						VariableTable v = new VariableTable(
 								vTableCount.toString(),
-								f.getValue().getSecond());
+								e.getValue().getSecond());
 
 						v.setRelation(f.getKey());
 						curQP.put(f.getValue().getSecond(), v);
