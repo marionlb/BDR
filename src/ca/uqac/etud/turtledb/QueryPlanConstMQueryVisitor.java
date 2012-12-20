@@ -41,6 +41,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 
 	public QueryPlan getQueryPlan()
 	{
+		// On ajoute le dernier morceau d'arbre au QueryPlan
 		currentQP.put(currentEngine, growingRel);
 		return currentQP;
 	}
@@ -49,6 +50,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	public void visit(Projection r) throws MVisitorException
 	{
 		r.getRelation().maccept(this);
+		// On fait toujours une projection sur le même site que le sous arbre.
 		growingRel = new Projection(r.getSchema(), growingRel);
 	}
 
@@ -56,6 +58,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	public void visit(Selection r) throws MVisitorException
 	{
 		r.getRelation().maccept(this);
+		// On fait toujours une selection sur le même site que sur le sous arbre.
 		growingRel = new Selection(r.getCondition(), growingRel);
 	}
 
@@ -75,6 +78,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 		String minEngine = null;
 		List<Engine> leg = BD.getTableLocations(r);
 
+		// On recherche le site le moins cher poiur executer la recherche
 		for (Engine e : leg)
 		{
 			curqp = new QueryPlan();
@@ -114,63 +118,68 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	public void visit(Join r) throws MVisitorException
 	{
 
-		float minCost = Float.MAX_VALUE;
-		QueryPlan minQP = new QueryPlan();
-		String minEngine = null;
-		Join minTree = null;
-
-		Map<Relation, Pair<Float, String>> costMap;
-		costMap = new HashMap<Relation, Pair<Float, String>>();
-
-		//TODO: Corriger Join
 		//On visite tout les enfants de la relation, on sauvegarde le résultat de la descente.
 		r.getLeft().maccept(this);
 		Relation lGrow = growingRel;
 		float lCost = currentCost;
 		String lEngine = currentEngine;
-		r.getRight().maccept(this);
 
+		r.getRight().maccept(this);
+		Relation rGrow = growingRel;
+		float rCost = currentCost;
+		String rEngine = currentEngine;
+
+		// si les deux fils sont sur le même site, c'est lui qu'on utilise
 		if (lEngine.equals(currentEngine))
 		{
 			Join j = new Join(r.getCondition());
 			j.setLeft(lGrow);
-			j.setRight(growingRel);
+			j.setRight(rGrow);
 			growingRel = j;
 		} else
 		{
-			if (lCost >= currentCost)
+			// On crée les deux scénario de plan possible
+			vTableCount++;
+			VariableTable v1 = new VariableTable("intermed" + vTableCount.toString(), lEngine);
+			vTableCount++;
+			VariableTable v2 = new VariableTable("intermed" + vTableCount.toString(), rEngine);
+
+			v1.setRelation(rGrow);
+			v2.setRelation(lGrow);
+
+			Join j1 = new Join(r.getCondition());
+			Join j2 = new Join(r.getCondition());
+
+			j1.setLeft(lGrow);
+			j1.setRight(v1);
+
+			j2.setLeft(v2);
+			j2.setRight(rGrow);
+
+			QueryPlan QP1 = new QueryPlan(currentQP);
+			QP1.put(rEngine, v1);
+			QP1.put(lEngine, j1);
+			float cost1 = QueryOptimizer.getCost(QP1);
+
+			QueryPlan QP2 = new QueryPlan(currentQP);
+			QP2.put(lEngine, v2);
+			QP2.put(rEngine, j2);
+			float cost2 = QueryOptimizer.getCost(QP2);
+
+			if (cost1 < cost2)
 			{
-				vTableCount++;
-				VariableTable v = new VariableTable(
-						vTableCount.toString(), lEngine);
-
-				v.setRelation(growingRel);
-				Join j = new Join(r.getCondition());
-
-				j.setLeft(lGrow);
-				j.setRight(v);
-				currentQP.put(currentEngine, v);
+				growingRel = j1;
+				currentQP.put(rEngine, v1);
+				currentCost = cost1;
 				currentEngine = lEngine;
-				growingRel = j;
-				
-			}
-			else
+			} else
 			{
-				vTableCount++;
-				VariableTable v = new VariableTable(
-						vTableCount.toString(), currentEngine);
-
-				v.setRelation(lGrow);
-				Join j = new Join(r.getCondition());
-
-				j.setLeft(v);
-				j.setRight(growingRel);
-				currentQP.put(lEngine, v);
-				growingRel = j;
+				growingRel = j2;
+				currentQP.put(lEngine, v2);
+				currentCost = cost2;
+				currentEngine = rEngine;
 			}
-
 		}
-		currentCost = QueryOptimizer.getCost(currentQP);
 	}
 
 	@Override
@@ -178,7 +187,7 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	{
 		NAryvisit(r, new Product());
 	}
-
+	/* Deuxième argument : Q&D fix pour permettre d'instancier un objet dans un generics*/
 	private <T extends NAryRelation> void NAryvisit(T r, T empty) throws MVisitorException
 	{
 		float minCost = Float.MAX_VALUE;
@@ -225,8 +234,8 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 					{
 						vTableCount++;
 						VariableTable v = new VariableTable(
-								vTableCount.toString(),
-								e.getValue().getSecond());
+								"intermed" + vTableCount.toString(),
+								e.getValue().getSecond()); // deuxième argument : destination du VariableTable
 
 						v.setRelation(f.getKey());
 						curQP.put(f.getValue().getSecond(), v);
@@ -234,7 +243,9 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 					}
 				}
 			}
-			Float curCost = QueryOptimizer.getCost(curQP);
+			QueryPlan testQP = new QueryPlan(curQP);
+			testQP.put(curEngine, candidateTree);
+			Float curCost = QueryOptimizer.getCost(testQP);
 
 			if (curCost < minCost)
 			{
