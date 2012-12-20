@@ -35,7 +35,18 @@ public class QueryPlan extends HashMap<String,Set<Relation>>
    */
   private static final long serialVersionUID = 1L;
   
+  //Modif pour prendre en compte les couples site-relation déjà existants
   public void put(String key, Relation r)
+  {
+	if(this.containsKey(key))
+		this.get(key).add(r);
+	else {
+		Set<Relation> rels = new HashSet<Relation>();
+		rels.add(r);
+		this.put(key, rels);
+	}
+  }
+  public void put_old(String key, Relation r)
   {
     Set<Relation> rels = new HashSet<Relation>();
     rels.add(r);
