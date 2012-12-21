@@ -4,27 +4,23 @@
  */
 package ca.uqac.etud.turtledb;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ca.uqac.dim.turtledb.Engine;
-import ca.uqac.dim.turtledb.MQueryVisitor;
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
-import ca.uqac.dim.turtledb.NAryCondition;
+import ca.uqac.dim.turtledb.MQueryVisitor;
 import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryPlan;
-import ca.uqac.dim.turtledb.QueryVisitor;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Selection;
 import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.Union;
 import ca.uqac.dim.turtledb.VariableTable;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

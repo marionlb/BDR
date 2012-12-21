@@ -5,7 +5,6 @@
 package ca.uqac.etud.turtledb;
 
 import ca.uqac.dim.turtledb.Attribute;
-import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.ConditionVisitor;
 import ca.uqac.dim.turtledb.Equality;
 import ca.uqac.dim.turtledb.LogicalAnd;

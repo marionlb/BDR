@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 
 import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.QueryPlan;
-import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.XmlQueryParser;
+import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.util.FileReadWrite;
 
 public class Example {
