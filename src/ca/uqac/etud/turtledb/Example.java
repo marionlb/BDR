@@ -102,7 +102,8 @@ public class Example {
 			QueryPlan p = QueryOptimizer.optimizeQuery(r);
 			System.out.println(p);
 			System.out.println("----- End --------");
-			System.out.println("cout : "+QueryOptimizer.getCostByVisitor(p));
+			System.out.println("cout : "+QueryOptimizer.getCost(p));
+			CostVisitor.pw.flush();
 
 		}
 

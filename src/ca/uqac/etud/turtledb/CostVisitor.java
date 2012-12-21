@@ -174,7 +174,7 @@ public class CostVisitor extends MQueryVisitor {
 			return;
 
 		String siteT = BD.isHostedOn(r);
-		this.nbtuples = r.nTuples;
+		this.nbtuples = r.tupleCount();
 
 		if (siteT.equals(site)) {
 			// super, on est déjà sur le bon site
@@ -189,7 +189,7 @@ public class CostVisitor extends MQueryVisitor {
 	}
 
 	private void print(float coutTransfert) {
-		pw.format("%6.2f = %4.2f * %3d\n", cout, coutTransfert, this.nbtuples);
+//		pw.format("%6.2f = %4.2f * %3d\n", cout, coutTransfert, this.nbtuples);
 	}
 
 	public float getCout() {

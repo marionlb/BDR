@@ -33,8 +33,6 @@ public abstract class Relation implements Cloneable
    * performed in "streaming" mode (vs. "cache" mode)
    */
   public boolean m_streamingMode = false;
-public int nTuples;
-public float cost; 
   
   /**
    * Returns the relation's schema
