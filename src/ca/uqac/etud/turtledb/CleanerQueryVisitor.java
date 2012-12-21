@@ -6,6 +6,7 @@ package ca.uqac.etud.turtledb;
 
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
+import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryVisitor;
@@ -19,6 +20,8 @@ import java.util.List;
 /**
  *
  * @author fx
+ * 
+ * Remove useless Selection
  */
 public class CleanerQueryVisitor extends QueryVisitor
 {
@@ -62,37 +65,12 @@ public class CleanerQueryVisitor extends QueryVisitor
 	@Override
 	public void visit(Union r) throws VisitorException
 	{
-		List<Relation> rels = r.getRelations();
-
-		for (int i = 0; i < rels.size(); i++)
-		{
-			if (rels.get(i) instanceof Selection)
-			{
-				Selection s = (Selection) rels.get(i);
-				if (s.isToTrash())
-				{
-					rels.set(i, s.getRelation());
-				}
-			}
-		}
 	}
 
 	@Override
 	public void visit(Intersection r) throws VisitorException
 	{
-		List<Relation> rels = r.getRelations();
-
-		for (int i = 0; i < rels.size(); i++)
-		{
-			if (rels.get(i) instanceof Selection)
-			{
-				Selection s = (Selection) rels.get(i);
-				if (s.isToTrash())
-				{
-					rels.set(i, s.getRelation());
-				}
-			}
-		}
+		NAryVisit(r);
 	}
 
 	@Override
@@ -119,6 +97,10 @@ public class CleanerQueryVisitor extends QueryVisitor
 	@Override
 	public void visit(Product r) throws VisitorException
 	{
+		NAryVisit(r);
+	}
+	private void NAryVisit (NAryRelation r)
+	{
 		List<Relation> rels = r.getRelations();
 
 		for (int i = 0; i < rels.size(); i++)
@@ -132,5 +114,6 @@ public class CleanerQueryVisitor extends QueryVisitor
 				}
 			}
 		}
+		
 	}
 }

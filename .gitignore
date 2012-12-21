@@ -11,3 +11,4 @@
 .settings/*
 /nbproject/private/
 /build/
+/dist/

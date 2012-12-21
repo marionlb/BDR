@@ -7,6 +7,7 @@ package ca.uqac.etud.turtledb;
 import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
+import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryVisitor;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 /**
  *
+ * Trouve les endroits où placer de manière optimale les selections
  * @author fx
  */
 public class SelectionLocationFinderQueryVisitor extends QueryVisitor
@@ -41,18 +43,6 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 
 	}
 
-	private boolean VerifyCondition(Relation r)
-	{
-		if (r instanceof VariableTable)
-		{
-			VariableTable vt = (VariableTable) r;
-			AttributeVerificatorConditionVisitor avcv = new AttributeVerificatorConditionVisitor(vt.getName());
-			condition.accept(avcv);
-			return avcv.isTableFound();
-		}
-		return false;
-
-	}
 
 	@Override
 	public void visit(Projection prjctn) throws VisitorException
@@ -86,37 +76,13 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 	@Override
 	public void visit(Union union) throws VisitorException
 	{
-		List<Relation> concernedList = new ArrayList<Relation>();
-
-		for (Relation r : union.getRelations())
-		{
-			if (VerifyCondition(r))
-			{
-				concernedList.add(r);
-			}
-		}
-		if (!concernedList.isEmpty())
-		{
-			selectPos.put(union, concernedList);
-		}
+		NAryvisit(union);
 	}
 
 	@Override
 	public void visit(Intersection i) throws VisitorException
 	{
-		List<Relation> concernedList = new ArrayList<Relation>();
-
-		for (Relation r : i.getRelations())
-		{
-			if (VerifyCondition(r))
-			{
-				concernedList.add(r);
-			}
-		}
-		if (!concernedList.isEmpty())
-		{
-			selectPos.put(i, concernedList);
-		}
+		NAryvisit(i);
 	}
 
 	@Override
@@ -142,9 +108,14 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 	@Override
 	public void visit(Product prdct) throws VisitorException
 	{
+		NAryvisit(prdct);
+	}
+
+	private void NAryvisit(NAryRelation rel)
+	{
 		List<Relation> concernedList = new ArrayList<Relation>();
 
-		for (Relation r : prdct.getRelations())
+		for (Relation r : rel.getRelations())
 		{
 			if (VerifyCondition(r))
 			{
@@ -153,7 +124,19 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 		}
 		if (!concernedList.isEmpty())
 		{
-			selectPos.put(prdct, concernedList);
+			selectPos.put(rel, concernedList);
 		}
+	}
+	private boolean VerifyCondition(Relation r)
+	{
+		if (r instanceof VariableTable)
+		{
+			VariableTable vt = (VariableTable) r;
+			AttributeVerificatorConditionVisitor avcv = new AttributeVerificatorConditionVisitor(vt.getName());
+			condition.accept(avcv);
+			return avcv.isTableFound();
+		}
+		return false;
+
 	}
 }

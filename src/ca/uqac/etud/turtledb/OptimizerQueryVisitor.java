@@ -6,12 +6,16 @@ package ca.uqac.etud.turtledb;
 
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
+import ca.uqac.dim.turtledb.MQueryVisitor;
+import ca.uqac.dim.turtledb.NAryCondition;
+import ca.uqac.dim.turtledb.NAryRelation;
 import ca.uqac.dim.turtledb.Product;
 import ca.uqac.dim.turtledb.Projection;
 import ca.uqac.dim.turtledb.QueryVisitor;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.Selection;
 import ca.uqac.dim.turtledb.Table;
+import ca.uqac.dim.turtledb.UnaryRelation;
 import ca.uqac.dim.turtledb.Union;
 import ca.uqac.dim.turtledb.VariableTable;
 import java.util.List;
@@ -19,7 +23,9 @@ import java.util.Map;
 
 /**
  *
+ * Place les Selection de manière optimale
  * @author fx
+ * 
  */
 public class OptimizerQueryVisitor extends QueryVisitor
 {
@@ -32,6 +38,7 @@ public class OptimizerQueryVisitor extends QueryVisitor
 	@Override
 	public void visit(Selection slctn) throws VisitorException
 	{
+		//On cherche où placer les selection
 		SelectionLocationFinderQueryVisitor sqv = new SelectionLocationFinderQueryVisitor(slctn.getCondition());
 		slctn.getRelation().accept(sqv);
 		Map<Relation, List<Relation>> pos = sqv.getSelectPos();
@@ -39,65 +46,29 @@ public class OptimizerQueryVisitor extends QueryVisitor
 		if (!pos.isEmpty())
 		{
 			slctn.setToTrash(true);
+			//On parcours la list des endroit ou placer la selection, et on la place
 			for (Relation key : pos.keySet())
 			{
-				if (key instanceof Projection)
+				if (key instanceof UnaryRelation)
 				{
-					Projection p = ((Projection) key);
-					Relation tmp = p.getRelation();
-					p.setRelation(new Selection(slctn.getCondition(), tmp));
+					UnaryRelation u = ((UnaryRelation) key);
+					Relation tmp = u.getRelation();
+					u.setRelation(new Selection(slctn.getCondition(), tmp));
 
 				}
-				if (key instanceof Selection)
+				if (key instanceof NAryRelation)
 				{
-					Selection p = ((Selection) key);
-					Relation tmp = p.getRelation();
-					p.setRelation(new Selection(slctn.getCondition(), tmp));
-				}
-				if (key instanceof Union)
-				{
-					Union u = ((Union) key);
+					NAryRelation n = ((NAryRelation) key);
 					List<Relation> concernedList = pos.get(key);
-					List<Relation> unionChildren = u.getRelations();
-					for (int i = 0; i < unionChildren.size(); i++)
+					List<Relation> nChildren = n.getRelations();
+					for (int i = 0; i < nChildren.size(); i++)
 					{
-						if (concernedList.contains(unionChildren.get(i)))
+						if (concernedList.contains(nChildren.get(i)))
 						{
-							Relation tmp = unionChildren.get(i);
-							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
+							Relation tmp = nChildren.get(i);
+							nChildren.set(i, new Selection(slctn.getCondition(), tmp));
 						}
 					}
-
-				}
-				if (key instanceof Intersection)
-				{
-					Intersection u = ((Intersection) key);
-					List<Relation> concernedList = pos.get(key);
-					List<Relation> unionChildren = u.getRelations();
-					for (int i = 0; i < unionChildren.size(); i++)
-					{
-						if (concernedList.contains(unionChildren.get(i)))
-						{
-							Relation tmp = unionChildren.get(i);
-							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
-						}
-					}
-
-				}
-				if (key instanceof Product)
-				{
-					Product u = ((Product) key);
-					List<Relation> concernedList = pos.get(key);
-					List<Relation> unionChildren = u.getRelations();
-					for (int i = 0; i < unionChildren.size(); i++)
-					{
-						if (concernedList.contains(unionChildren.get(i)))
-						{
-							Relation tmp = unionChildren.get(i);
-							unionChildren.set(i, new Selection(slctn.getCondition(), tmp));
-						}
-					}
-
 				}
 				if (key instanceof Join)
 				{
