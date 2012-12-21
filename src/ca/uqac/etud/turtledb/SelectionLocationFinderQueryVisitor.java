@@ -4,6 +4,11 @@
  */
 package ca.uqac.etud.turtledb;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ca.uqac.dim.turtledb.Condition;
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
@@ -16,10 +21,6 @@ import ca.uqac.dim.turtledb.Selection;
 import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.Union;
 import ca.uqac.dim.turtledb.VariableTable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  *

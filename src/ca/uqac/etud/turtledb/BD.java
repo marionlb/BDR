@@ -9,6 +9,11 @@ import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.VariableTable;
 
+/**
+ * Structure de données représentant l'état de la base de données actuelle
+ * @author marion
+ *
+ */
 public class BD {
 
 	/**
@@ -16,23 +21,18 @@ public class BD {
 	 */
 	final static HashMap<String, Table> tables = new HashMap<String, Table>();
 	/**
-	 * Liste des sites ({@link Engine}, indexés par leur nom
+	 * Liste des sites ({@link Engine}), indexés par leur nom
 	 */
 	final static HashMap<String, Engine> sites = new HashMap<String, Engine>();
 
 	/**
-	 * Répertoire des fragments, classés par Table
+	 * Répertoire des tables ({@link Table}), classées par nom de site 
 	 */
-	// static HashMap<String, List<VariableTable>> fragmentsTables = new
-	// HashMap<String, List<VariableTable>>();
-
-	/**
-	 * Répertoire des fragments, classés par site
-	 */
-	// static HashMap<String, List<VariableTable>> fragmentsSites = new
-	// HashMap<String, List<VariableTable>>();
-
 	final static HashMap<String, List<Table>> tablesSites = new HashMap<String, List<Table>>();
+	
+	/**
+	 * Répertoire des sites ({@link Engine}), répertoriés par nom de tables
+	 */
 	final static HashMap<String, List<Engine>> sitesTables = new HashMap<String, List<Engine>>();
 
 	/**

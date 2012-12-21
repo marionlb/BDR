@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 
 import ca.uqac.dim.turtledb.Engine;
 import ca.uqac.dim.turtledb.QueryPlan;
-import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.Relation;
 import ca.uqac.dim.turtledb.XmlQueryParser;
+import ca.uqac.dim.turtledb.QueryVisitor.VisitorException;
 import ca.uqac.dim.turtledb.util.FileReadWrite;
 
 public class Example {
@@ -102,7 +102,8 @@ public class Example {
 			QueryPlan p = QueryOptimizer.optimizeQuery(r);
 			System.out.println(p);
 			System.out.println("----- End --------");
-			System.out.println("cout : "+QueryOptimizer.getCostByVisitor(p));
+			System.out.println("cout : "+QueryOptimizer.getCost(p));
+			CostVisitor.pw.flush();
 
 		}
 

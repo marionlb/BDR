@@ -4,6 +4,8 @@
  */
 package ca.uqac.etud.turtledb;
 
+import java.util.List;
+
 import ca.uqac.dim.turtledb.Intersection;
 import ca.uqac.dim.turtledb.Join;
 import ca.uqac.dim.turtledb.NAryRelation;
@@ -16,7 +18,6 @@ import ca.uqac.dim.turtledb.Table;
 import ca.uqac.dim.turtledb.UnaryRelation;
 import ca.uqac.dim.turtledb.Union;
 import ca.uqac.dim.turtledb.VariableTable;
-import java.util.List;
 
 /**
  *
