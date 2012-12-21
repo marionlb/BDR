@@ -3,4 +3,4 @@ FROM Mission, Rocket, Crew, Astronaut
 WHERE Mission.Rocket=Rocket.Name
 AND Mission.Name = Crew.Mission
 AND Astronaut.Name = Crew.Astronaut
-AND Birth=1929 OR Nationality=USSR
+AND Astronaut.Birth=1929 OR Astronaut.Nationality=USSR

@@ -1,3 +1,3 @@
 SELECT Astronaut.Name, Astronaut.Nationality 
 FROM Astronaut
-WHERE Affiliation=NASA Group 4
+WHERE Astronaut.Affiliation=NASA Group 4

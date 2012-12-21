@@ -40,7 +40,7 @@ public class OptimizerQueryVisitor extends QueryVisitor
 		ProjectionLocationFinderMQueryVisitor sqv = new ProjectionLocationFinderMQueryVisitor(prjctn.getSchema());
 		try
 		{
-			prjctn.getRelation().maccept(sqv);
+			prjctn.maccept(sqv);
 		} catch (MVisitorException ex)
 		{
 			Logger.getLogger(OptimizerQueryVisitor.class.getName()).log(Level.SEVERE, null, ex);
@@ -99,7 +99,7 @@ public class OptimizerQueryVisitor extends QueryVisitor
 	{
 		//On cherche où placer les selection
 		SelectionLocationFinderQueryVisitor sqv = new SelectionLocationFinderQueryVisitor(slctn.getCondition());
-		slctn.getRelation().accept(sqv);
+		slctn.accept(sqv);
 		Map<Relation, List<Relation>> pos = sqv.getSelectPos();
 
 		if (!pos.isEmpty())
