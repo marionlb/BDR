@@ -27,15 +27,27 @@ import java.util.logging.Logger;
 /**
  *
  * Place les Selection de manière optimale
+ *
  * @author fx
- * 
+ *
  */
 public class OptimizerQueryVisitor extends QueryVisitor
 {
 
+	private boolean OptimizeProjection = false;
+
+	public void setOptimizeProjection(boolean o)
+	{
+		OptimizeProjection = o;
+	}
+
 	@Override
 	public void visit(Projection prjctn) throws VisitorException
 	{
+		if (!OptimizeProjection)
+		{
+			return;
+		}
 		//On cherche où placer les selection
 		ProjectionLocationFinderMQueryVisitor sqv = new ProjectionLocationFinderMQueryVisitor(prjctn.getSchema());
 		try

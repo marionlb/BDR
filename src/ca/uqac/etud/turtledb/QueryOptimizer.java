@@ -223,8 +223,13 @@ public class QueryOptimizer {
 	}
 	public static Relation getOptimizeRelation(Relation r) throws VisitorException {
 		OptimizerQueryVisitor oqv = new OptimizerQueryVisitor();
-		r.accept(oqv);
 		CleanerQueryVisitor cqv = new CleanerQueryVisitor();
+		oqv.setOptimizeProjection(false);
+		r.accept(oqv);
+		r.accept(cqv);
+
+		oqv.setOptimizeProjection(true);
+		r.accept(oqv);
 		r.accept(cqv);
 		
 		// Trash la racine si besoin
