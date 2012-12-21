@@ -202,6 +202,15 @@ public class QueryOptimizer {
 		r.accept(oqv);
 		CleanerQueryVisitor cqv = new CleanerQueryVisitor();
 		r.accept(cqv);
+		
+		// Trash la racine si besoin
+		if (r instanceof UnaryRelation)
+		{
+			UnaryRelation u = (UnaryRelation) r;
+			if (u.isToTrash())
+				r = u.getRelation();
+			
+		}
 		return r;
 
 	}

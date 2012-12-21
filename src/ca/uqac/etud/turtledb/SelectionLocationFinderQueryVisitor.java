@@ -38,6 +38,7 @@ public class SelectionLocationFinderQueryVisitor extends QueryVisitor
 	}
 
 	public SelectionLocationFinderQueryVisitor(Condition cond)
+			
 	{
 		this.condition = cond;
 

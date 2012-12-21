@@ -103,10 +103,6 @@ public class QueryPlanConstMQueryVisitor extends MQueryVisitor
 	{
 		NAryvisit(r, new Union());
 	}
-	/*
-	 * L'utilisation de generics pour éviter la duplication du code est impossible.
-	 * En effet, la JVM ne permet pas d'instantier un type générique...
-	 */
 
 	@Override
 	public void visit(Intersection r) throws MVisitorException
