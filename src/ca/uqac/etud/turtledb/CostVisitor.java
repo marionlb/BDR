@@ -202,9 +202,10 @@ public class CostVisitor extends MQueryVisitor {
 
 	/**
 	 * Visite le fils gauche et le fils droit de la BinaryRelation
-	 * 
+	 * Mets à jour le coût
 	 * @param r
 	 * @throws MVisitorException
+	 * @return le nb de tuples du fils gauche (calcul futur)
 	 */
 	private int BinaryVisit(BinaryRelation r) throws MVisitorException {
 		// on stocke les couts initiaux
@@ -238,6 +239,7 @@ public class CostVisitor extends MQueryVisitor {
 	 * 
 	 * @param r
 	 * @throws MVisitorException
+	 * @return un tableau des nbTuples des n fils (calcul futur)
 	 */
 	private int[] NAryVisit(NAryRelation r) throws MVisitorException {
 		// on stocke les couts initiaux
@@ -271,7 +273,13 @@ public class CostVisitor extends MQueryVisitor {
 		return nbTuplesTmp;
 	}
 
-	public static float cost(String siteDest, String siteInitial) {
+	/**
+	 * Cout de la transmission d'un site à l'autre
+	 * @param siteDest Site destination (celui ou on rajoutera le coût de stockage)
+	 * @param siteInitial Site initial de transmission
+	 * @return le cout de la transmission
+	 */
+	private static float cost(String siteDest, String siteInitial) {
 		float res = 0;
 		if (siteDest.equals(siteInitial))
 			;
