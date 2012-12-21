@@ -21,7 +21,7 @@ public class Example {
 
 	public static void main(String[] args) {
 		importer();
-		BD.affiche();	
+//		BD.affiche();	
 	}
 
 	public static void importer() {
@@ -53,7 +53,10 @@ public class Example {
 			System.err.println("Error reading Space database");
 			System.exit(1);
 		}
-		
+		System.out.println("Nb Tuples Astronaut : "+BD.getTable("Astronaut").tupleCount());
+		System.out.println("Nb Tuples Mission : "+BD.getTable("Mission").tupleCount());
+		System.out.println("Nb Tuples Crew : "+BD.getTable("Crew").tupleCount());
+		System.out.println("Nb Tuples Rocket : "+BD.getTable("Rocket").tupleCount());
 		//SITES !
 		Engine site_1 = new Engine("Site 1");
 		Engine site_2 = new Engine("Site 2");
@@ -99,7 +102,7 @@ public class Example {
 			QueryPlan p = QueryOptimizer.optimizeQuery(r);
 			System.out.println(p);
 			System.out.println("----- End --------");
-			System.out.println("cout : "+QueryOptimizer.getCost(p));
+			System.out.println("cout : "+QueryOptimizer.getCostByVisitor(p));
 
 		}
 

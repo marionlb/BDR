@@ -46,7 +46,7 @@ public class QueryOptimizer {
 	public static float getCost(QueryPlan qp) {
 		if (coutsStockage == null || coutsComm == null)
 			for (Engine site : BD.sites.values()) {
-				QueryOptimizer.addDefaultCost(site.getName());
+				BD.addDefaultCost(site.getName());
 			}
 
 		float res = 0;
@@ -58,6 +58,30 @@ public class QueryOptimizer {
 			listeCouts.add(tmp);
 		}
 		return res;
+	}
+	
+	public static float getCostByVisitor(QueryPlan qp) {
+		float totalCost = 0;
+		for (Iterator<Entry<String,Set<Relation>>> iterator = qp.entrySet().iterator(); iterator.hasNext();) {
+			
+			Entry<String,Set<Relation>> next = iterator.next();
+			String siteExec = (String) next.getKey();
+			Set<Relation> setRel = next.getValue();
+			
+			CostVisitor cv;
+			
+			for (Relation relation : setRel) {
+				cv = new CostVisitor(siteExec, relation);
+				try {
+					relation.maccept(cv);
+				} catch (MVisitorException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				totalCost+=cv.getCout();
+			}
+		}
+		return totalCost;
 	}
 
 	public static float cost(String site, Set<Relation> set) {
@@ -219,30 +243,17 @@ public class QueryOptimizer {
 		float res=0;
 		if(siteDest.equals(s2))
 			;
-		else if(!coutsStockage.containsKey(siteDest))
+		else if(!BD.coutsStockage.containsKey(siteDest))
 			;
-		else if(coutsComm.get(siteDest, s2)<0)
+		else if(BD.coutsComm.get(siteDest, s2)<0)
 			;
 		else 
-			res = coutsStockage.get(siteDest) + coutsComm.get(siteDest, s2);
+			res = BD.coutsStockage.get(siteDest) + BD.coutsComm.get(siteDest, s2);
 		assert res>=0;
 		return res;
 	}
 
-	public static void addDefaultCost(String site1) {
-		if (coutsStockage == null)
-			coutsStockage = new HashMap<String, Float>();
-		if (coutsComm == null)
-			coutsComm = new Matrice();
 
-		// cout stockage
-		coutsStockage.put(site1, (float) 0.01);
-		// cout comm
-		for (Engine site : BD.sites.values()) {
-			if (!site.getName().equals(site1))
-				coutsComm.set(site1, site.getName(), 1);
-		}
-	}
 }
 
 class Matrice extends HashMap<String, Float> {

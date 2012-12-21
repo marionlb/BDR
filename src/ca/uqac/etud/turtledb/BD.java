@@ -35,6 +35,15 @@ public class BD {
 	final static HashMap<String, List<Table>> tablesSites = new HashMap<String, List<Table>>();
 	final static HashMap<String, List<Engine>> sitesTables = new HashMap<String, List<Engine>>();
 
+	/**
+	 * Tableau des coûts de stockage
+	 */
+	static HashMap<String, Float> coutsStockage;
+	/**
+	 * Matrice des coûts de communication
+	 */
+	static Matrice coutsComm;
+	
 	public static void addSite(Engine e) {
 		sites.put(e.getName(), e);
 	}
@@ -196,6 +205,21 @@ public class BD {
 		if (vt == null)
 			return null;
 		return tables.get(vt.getName());
+	}
+	
+	public static void addDefaultCost(String site1) {
+		if (coutsStockage == null)
+			coutsStockage = new HashMap<String, Float>();
+		if (coutsComm == null)
+			coutsComm = new Matrice();
+
+		// cout stockage
+		coutsStockage.put(site1, (float) 0.01);
+		// cout comm
+		for (Engine site : BD.sites.values()) {
+			if (!site.getName().equals(site1))
+				coutsComm.set(site1, site.getName(), 1);
+		}
 	}
 	// public static void hostFragment(VariableTable frag, Table table, Engine
 	// site) {
